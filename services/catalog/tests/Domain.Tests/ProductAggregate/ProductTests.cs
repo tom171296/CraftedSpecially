@@ -7,7 +7,6 @@ namespace CraftedSpecially.Catalog.Domain.Tests.Aggregates.ProductAggregate;
 
 public class ProductTests
 {
-
     public class WhenRegistering
     {
         private RegisterProductCommand _command;
