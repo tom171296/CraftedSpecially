@@ -1,4 +1,6 @@
 using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Commands;
+using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Events;
+using CraftedSpecially.Shared.Domain;
 
 namespace CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate;
 
@@ -18,9 +20,11 @@ public class Product
     public static RegisterProductCommandResponse RegisterProduct(RegisterProductCommand command)
     {
         var product = new Product(Guid.NewGuid(), command.Name, command.Description);
+        var evt = new ProductRegisteredEvent(product.Id, product.Name, product.Description);
 
         return new RegisterProductCommandResponse (
-            product
+            product,
+            new IDomainEvent[] { evt}
         );
     }
 }
