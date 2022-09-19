@@ -10,8 +10,8 @@ public class ProductTests
 {
     public class WhenRegistering
     {
-        private RegisterProductCommand _command;
-        private RegisterProductCommandResponse _response;
+        private readonly RegisterProductCommand _command;
+        private readonly RegisterProductCommandResponse _response;
 
         public WhenRegistering()
         {
