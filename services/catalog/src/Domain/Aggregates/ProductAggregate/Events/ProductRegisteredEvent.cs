@@ -3,6 +3,6 @@ using CraftedSpecially.Shared.Domain;
 namespace CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Events;
 
 public record ProductRegisteredEvent(
-    Guid productId, 
+    Guid ProductId, 
     string Name, 
     string Description) : IDomainEvent;
