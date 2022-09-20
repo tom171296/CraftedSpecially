@@ -1,8 +1,10 @@
-using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Commands;
-using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Events;
+using System;
+using System.Collections.Generic;
+using CraftedSpecially.catalog.domain.Aggregates.ProductAggregate.Commands;
+using CraftedSpecially.catalog.domain.Aggregates.ProductAggregate.Events;
 using CraftedSpecially.Shared.Domain;
 
-namespace CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate;
+namespace CraftedSpecially.catalog.domain.Aggregates.ProductAggregate;
 
 public class Product
 {
@@ -11,6 +13,14 @@ public class Product
         Id = id;
         Name = name;
         Description = description;
+    }
+
+    public static RegisterProductCommandResponse Register(RegisterProductCommand command)
+    {
+        return new RegisterProductCommandResponse(
+            new Product(Guid.NewGuid(), command.Name, command.Description),
+            new List<IDomainEvent>()
+        );
     }
 
     public Guid Id { get; }
@@ -22,9 +32,9 @@ public class Product
         var product = new Product(Guid.NewGuid(), command.Name, command.Description);
         var evt = new ProductRegisteredEvent(product.Id, product.Name, product.Description);
 
-        return new RegisterProductCommandResponse (
+        return new RegisterProductCommandResponse(
             product,
-            new IDomainEvent[] { evt}
+            new IDomainEvent[] { evt }
         );
     }
 }

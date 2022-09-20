@@ -1,11 +1,14 @@
 
-using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Commands;
+using CraftedSpecially.catalog.application.CommandHandlers;
+using CraftedSpecially.catalog.domain.Aggregates.ProductAggregate.Commands;
 using FluentAssertions;
 
-namespace CraftedSpecially.Catalog.Application.Tests.CommandHandlers;
+namespace CraftedSpecially.catalog.Application.tests.CommandHandlers;
 
 public class RegisterProductCommandHandlerTests
 {
+    private readonly RegisterProductCommandHandler _sut;
+
     public RegisterProductCommandHandlerTests()
     {
         _sut = new RegisterProductCommandHandler();

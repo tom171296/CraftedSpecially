@@ -1,10 +1,10 @@
-using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate;
-using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Commands;
-using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Events;
+using CraftedSpecially.catalog.domain.Aggregates.ProductAggregate;
+using CraftedSpecially.catalog.domain.Aggregates.ProductAggregate.Commands;
+using CraftedSpecially.catalog.domain.Aggregates.ProductAggregate.Events;
 using FluentAssertions;
 using Xunit;
 
-namespace CraftedSpecially.Catalog.Domain.Tests.Aggregates.ProductAggregate;
+namespace CraftedSpecially.catalog.domain.tests.Aggregates.ProductAggregate;
 
 public class ProductTests
 {
