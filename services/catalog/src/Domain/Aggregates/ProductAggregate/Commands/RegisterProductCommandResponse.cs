@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using CraftedSpecially.Shared.Domain;
 
 namespace CraftedSpecially.catalog.domain.Aggregates.ProductAggregate.Commands;

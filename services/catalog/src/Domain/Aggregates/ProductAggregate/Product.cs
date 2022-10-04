@@ -1,11 +1,13 @@
-using System;
-using System.Collections.Generic;
 using CraftedSpecially.catalog.domain.Aggregates.ProductAggregate.Commands;
 using CraftedSpecially.catalog.domain.Aggregates.ProductAggregate.Events;
 using CraftedSpecially.Shared.Domain;
 
 namespace CraftedSpecially.catalog.domain.Aggregates.ProductAggregate;
 
+/// <summary>
+///     Product class that is the aggregate root of the catalog service.
+///     Responsible for all the business rules regarding the addition of a new product.
+/// </summary>
 public class Product
 {
     private Product(Guid id, string name, string description)
@@ -13,14 +15,6 @@ public class Product
         Id = id;
         Name = name;
         Description = description;
-    }
-
-    public static RegisterProductCommandResponse Register(RegisterProductCommand command)
-    {
-        return new RegisterProductCommandResponse(
-            new Product(Guid.NewGuid(), command.Name, command.Description),
-            new List<IDomainEvent>()
-        );
     }
 
     public Guid Id { get; }
