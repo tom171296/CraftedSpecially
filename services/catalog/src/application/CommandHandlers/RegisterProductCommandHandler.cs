@@ -7,7 +7,7 @@ namespace CraftedSpecially.catalog.application.CommandHandlers;
 ///     Responsible for handling the register product command. 
 ///     If a product can be registered succesfully, it will be registered in the persistence layer.
 /// </summary>
-public class RegisterProductCommandHandler
+public class RegisterProductCommandHandler : IRegisterProductCommandHandler
 {
     private readonly IProductRepository _productRepository;
 
