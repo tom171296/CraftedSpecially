@@ -4,8 +4,8 @@ namespace CraftedSpecially.catalog.api.tests.testdatabuilders;
 
 public class ProductFormBuilder
 {
-    private string name;
-    private string description;
+    private string name = "";
+    private string description = "";
 
     public ProductFormBuilder()
     {
@@ -23,7 +23,7 @@ public class ProductFormBuilder
 
     private void SetDefaults()
     {
-        name = "testName";
+        name = "testProduct";
         description = "testDescription";
     }
 }

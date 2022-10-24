@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CraftedSpecially.catalog.api.controllers;
 
+[ApiController]
+[Route("/products")]
 public class ProductController : ControllerBase
 {
-    private IRegisterProductCommandHandler _registerProductCommandHandler;
+    private readonly IRegisterProductCommandHandler _registerProductCommandHandler;
 
     public ProductController(IRegisterProductCommandHandler registerProductCommandHandler)
     {
@@ -21,6 +23,6 @@ public class ProductController : ControllerBase
         var command = new RegisterProductCommand(productForm.Name, productForm.Description);
         var response = await _registerProductCommandHandler.ExecuteAsync(command);
 
-        return null;
+        return response.Product;
     }
 }

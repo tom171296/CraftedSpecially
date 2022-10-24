@@ -16,12 +16,12 @@ public class ProductControllerTests
         var productForm = new ProductFormBuilder()
             .Build();
 
-        var registerProductCommandResponseBuilder = new RegisterProductCommandResponseBuilder()
+        var registerProductCommandResponse = new RegisterProductCommandResponseBuilder()
             .Build();
 
         var mockProductHandler = new Mock<IRegisterProductCommandHandler>();
         mockProductHandler.Setup(m => m.ExecuteAsync(It.IsAny<RegisterProductCommand>()))
-            .ReturnsAsync(registerProductCommandResponseBuilder);
+            .ReturnsAsync(registerProductCommandResponse);
 
 
         var sut = new ProductController(mockProductHandler.Object);
@@ -31,6 +31,7 @@ public class ProductControllerTests
     
         // Then
         mockProductHandler.Verify(m => m.ExecuteAsync(It.IsAny<RegisterProductCommand>()), Times.Once);
+        creationResult.Value.Should().NotBeNull();
         creationResult.Value.Name.Should().Be(productForm.Name);
         creationResult.Value.Description.Should().Be(productForm.Description);
     }
