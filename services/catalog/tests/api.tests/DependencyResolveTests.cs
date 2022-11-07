@@ -81,7 +81,7 @@ public class DepedencyResolveTests
     private IList<TypeInfo> ControllerTypes(IServiceProvider serviceProvider)
     {
         var applicationPartManager = serviceProvider.GetRequiredService<ApplicationPartManager>();
-        ControllerFeature controllerFeature = new ControllerFeature();
+        var controllerFeature = new ControllerFeature();
         applicationPartManager.PopulateFeature(controllerFeature);
         return controllerFeature.Controllers;
     }
