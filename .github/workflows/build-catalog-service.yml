@@ -9,9 +9,7 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3
-        with:
-          path: './services/catalog/'
-
+       
       - name: Setup .NET 6.x
         uses: actions/setup-dotnet@v3
         with:
@@ -19,10 +17,10 @@ jobs:
           dotnet-version: '6.x'
 
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore './services/catalog/'
 
       - name: Build
-        run: dotnet build
+        run: dotnet build './services/catalog/'
 
       - name: Test with the dotnet CLI
-        run: dotnet test
+        run: dotnet test './services/catalog/'
