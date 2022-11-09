@@ -11,8 +11,8 @@ namespace CraftedSpecially.catalog.api.tests;
 
 public class DepedencyResolveTests
 {
-    private IServiceCollection _configuredServices;
-    private IServiceProvider _serviceProvider;
+    private IServiceCollection? _configuredServices;
+    private readonly IServiceProvider _serviceProvider;
 
     
     public DepedencyResolveTests()
@@ -36,13 +36,16 @@ public class DepedencyResolveTests
         // Act
         List<object> resolvedServices = new();
 
-        foreach (var service in _configuredServices)
+        foreach (var service in _configuredServices!)
         {
             Type serviceType = service.ServiceType;
 
             var resolvedService = ResolveService(_serviceProvider, serviceType);
 
-            resolvedServices.Add(resolvedService);
+            if(resolvedService != null)
+            {
+                resolvedServices.Add(resolvedService);
+            }
         }
 
         // Assert
@@ -71,14 +74,17 @@ public class DepedencyResolveTests
         foreach (var singleControllerType in controllerTypes)
         {
             var resolveService = ResolveService(controllerProvider, singleControllerType);
-            resolvedControllers.Add(resolveService);
+            if(resolveService != null)
+            {
+                resolvedControllers.Add(resolveService);
+            }
         }
 
         // Assert
         resolvedControllers.Should().NotContainNulls("Controller is not resolvable");
     }
 
-    private IList<TypeInfo> ControllerTypes(IServiceProvider serviceProvider)
+    private static IList<TypeInfo> ControllerTypes(IServiceProvider serviceProvider)
     {
         var applicationPartManager = serviceProvider.GetRequiredService<ApplicationPartManager>();
         var controllerFeature = new ControllerFeature();
@@ -86,7 +92,7 @@ public class DepedencyResolveTests
         return controllerFeature.Controllers;
     }
 
-    private object ResolveService(IServiceProvider serviceProvider, Type serviceType)
+    private static object? ResolveService(IServiceProvider serviceProvider, Type serviceType)
     {
         Type resolvableType = serviceType;
 
@@ -96,7 +102,7 @@ public class DepedencyResolveTests
             resolvableType = ConstructGenericType(serviceType);
         }
 
-        object resolvedService = null;
+        object? resolvedService = null;
 
         try
         {

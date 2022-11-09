@@ -1,4 +1,3 @@
-using CraftedSpecially.catalog.api.forms;
 using CraftedSpecially.catalog.api.controllers;
 using CraftedSpecially.catalog.application.CommandHandlers;
 using Moq;
@@ -32,7 +31,7 @@ public class ProductControllerTests
         // Then
         mockProductHandler.Verify(m => m.ExecuteAsync(It.IsAny<RegisterProductCommand>()), Times.Once);
         creationResult.Value.Should().NotBeNull();
-        creationResult.Value.Name.Should().Be(productForm.Name);
-        creationResult.Value.Description.Should().Be(productForm.Description);
+        creationResult.Value!.Name.Should().Be(productForm.Name);
+        creationResult.Value!.Description.Should().Be(productForm.Description);
     }
 }
