@@ -1,3 +1,6 @@
+using CraftedSpecially.catalog.application;
+using CraftedSpecially.catalog.infrastructure.Extensions;
+
 namespace CraftedSpecially.catalog.api;
 
 public class Startup
@@ -11,8 +14,12 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllers();
+        // Add project dependencies
+        services.AddInfrastructureDependencies();
+        services.AddApplicationDependencies();
 
+
+        services.AddControllers();
         services.AddSwaggerGen();
     }
 
