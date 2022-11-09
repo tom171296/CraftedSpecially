@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          path: ./services/catalog/
+          directory: ./services/catalog
 
       - name: Setup .NET 6.x
         uses: actions/setup-dotnet@v3
