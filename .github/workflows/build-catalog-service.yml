@@ -17,10 +17,10 @@ jobs:
           dotnet-version: '6.x'
 
       - name: Install dependencies
-        run: dotnet restore './services/catalog/'
+        run: dotnet restore './Services/Catalog/'
 
       - name: Build
-        run: dotnet build './services/catalog/'
+        run: dotnet build './Services/Catalog/'
 
       - name: Test with the dotnet CLI
-        run: dotnet test './services/catalog/'
+        run: dotnet test './Services/Catalog/'
