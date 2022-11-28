@@ -17,11 +17,16 @@ public class Product : AggregateRoot
     /// <summary>
     /// Register a new Product.
     /// </summary>
-    public async ValueTask RegisterProductAsync(RegisterProductCommand command)
-    {
-        // Handle command
-        var productRegisteredEvent = ProductRegisteredEvent.FromCommand(command);
-        ApplyDomainEvent(productRegisteredEvent);
+    public async void RegisterProductAsync(RegisterProductCommand command, IProductService _productService)
+    {   
+        await EnsureProductIsUniqueAsync(command.Name, _productService);
+
+        if(IsValid)
+        {
+             // Handle command
+            var productRegisteredEvent = ProductRegisteredEvent.FromCommand(command);
+            ApplyDomainEvent(productRegisteredEvent);
+        }
     }
 
     //===================================================================================
@@ -47,4 +52,19 @@ public class Product : AggregateRoot
         Name = productRegisteredEvent.Name;
         Description = productRegisteredEvent.Description;
     }
+
+    //===================================================================================
+    // This region contains the methods that check business-rules. This can be rules that 
+    // apply to the state (properties) of the aggregate or to specific values passed in 
+    // as part of a command.
+    //===================================================================================
+
+    private async Task EnsureProductIsUniqueAsync(string name, IProductService productService)
+    {
+        if(await productService.IsExistingProductAsync(name))
+        {
+            AddBusinessRuleViolation($"Product with name \"{name}\" already exists");
+        }
+    }
+
 }

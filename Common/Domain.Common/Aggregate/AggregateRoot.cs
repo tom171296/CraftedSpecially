@@ -2,6 +2,13 @@ namespace CraftedSpecially.Domain.Common;
 
 public abstract class AggregateRoot : Entity, IAggregateRoot
 {
+    private readonly List<string> _businessRuleViolations;
+
+    /// <summary>
+    /// Indication whether the aggregate is in a valid state (true) or not (false).
+    /// </summary>
+    public bool IsValid => !_businessRuleViolations.Any();
+
     /// <summary>
     /// The list of domain events that are created when handling a command.
     /// </summary>
@@ -10,6 +17,7 @@ public abstract class AggregateRoot : Entity, IAggregateRoot
     public AggregateRoot()
     {
         _domainEvents = new();
+        _businessRuleViolations = new();
     }
 
     public IEnumerable<Event> GetDomainEvents()
@@ -48,5 +56,23 @@ public abstract class AggregateRoot : Entity, IAggregateRoot
     protected void AddDomainEvent(Event domainEvent)
     {
         _domainEvents.Add(domainEvent);
+    }
+
+    /// <summary>
+    /// Add a business-rule violation. This violation must be a clear description of the 
+    /// business-rule that was violated.
+    /// </summary>
+    /// <param name="violation">The business-rule violation message to add.</param>
+    public void AddBusinessRuleViolation(string violation)
+    {
+        _businessRuleViolations.Add(violation);
+    }
+
+    /// <summary>
+    /// Get the list of business-rule violations.
+    /// </summary>
+    public IEnumerable<string> GetBusinessRuleViolations()
+    {
+        return _businessRuleViolations;
     }
 }
