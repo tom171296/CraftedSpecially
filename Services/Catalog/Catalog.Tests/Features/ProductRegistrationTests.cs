@@ -26,7 +26,7 @@ public class ProductRegistrationTests
         // Arrange
         var command = new RegisterProductCommand("", "");
 
-        var webApplicationFactory = new WebApplicationFactory<>().WithWebHostBuilder(builder =>
+        var webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
 
         });
@@ -37,6 +37,9 @@ public class ProductRegistrationTests
         var result = await client.PostAsync("/api/products", new StringContent(JsonConvert.SerializeObject(command), Encoding.UTF8, "application/json"));
 
         // Assert
+        // check if result is 200
+
+        // check if product is saved to the database
 
     }
 }
