@@ -15,4 +15,8 @@
     <InternalsVisibleTo Include="Catalog.Tests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\Application.csproj" />
+  </ItemGroup>
+
 </Project>

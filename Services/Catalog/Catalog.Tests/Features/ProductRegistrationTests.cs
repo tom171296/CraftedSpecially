@@ -1,5 +1,6 @@
 using System.Text;
 using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Commands;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 
@@ -8,18 +9,6 @@ namespace CraftedSpecially.Catalog.Tests.Features;
 [TestClass]
 public class ProductRegistrationTests
 {
-    [ClassInitialize(InheritanceBehavior.None)]
-    public void SetupDatabase()
-    {
-        // Start my sql database container
-    }
-
-    [ClassCleanup]
-    public void cleanupDatabase()
-    {
-
-    }
-
     [TestMethod]
     public async Task RegisterProduct_withValidProductCommand_shouldSaveProductToTheDatabase()
     {
@@ -28,18 +17,24 @@ public class ProductRegistrationTests
 
         var webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
-
         });
 
         var client = webApplicationFactory.CreateClient();
 
         // Act
-        var result = await client.PostAsync("/api/products", new StringContent(JsonConvert.SerializeObject(command), Encoding.UTF8, "application/json"));
+        var result = await client.PostAsync(
+            "productmanagement/command/registerproduct",
+            new StringContent(
+                JsonConvert.SerializeObject(command),
+                Encoding.UTF8,
+                "application/json"
+                )
+            );
 
         // Assert
         // check if result is 200
+        result.IsSuccessStatusCode.Should().BeTrue();
 
         // check if product is saved to the database
-
     }
 }
