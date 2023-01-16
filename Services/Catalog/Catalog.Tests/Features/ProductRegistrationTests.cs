@@ -1,7 +1,10 @@
 using System.Text;
+using CraftedSpecially.Catalog.Application.Interfaces;
+using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate;
 using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Commands;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Moq;
 using Newtonsoft.Json;
 
 namespace CraftedSpecially.Catalog.Tests.Features;
@@ -13,6 +16,7 @@ public class ProductRegistrationTests
     public async Task RegisterProduct_withValidProductCommand_shouldSaveProductToTheDatabase()
     {
         // Arrange
+        var mockRepository = new Mock<IProductRepository>();
         var command = new RegisterProductCommand("", "");
 
         var webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
@@ -34,7 +38,6 @@ public class ProductRegistrationTests
         // Assert
         // check if result is 200
         result.IsSuccessStatusCode.Should().BeTrue();
-
-        // check if product is saved to the database
+        mockRepository.Verify(x => x.AddAsync(It.Is<Product>(product => product.Name.Equals(command.Name) && product.Description.Equals(command.Description))), Times.Once);
     }
 }

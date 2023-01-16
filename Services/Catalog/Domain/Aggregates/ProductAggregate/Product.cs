@@ -10,14 +10,14 @@ namespace CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate;
 /// </summary>
 public class Product : AggregateRoot
 {
-    public string? Name { get; private set;}
-    public string? Description { get; private set;}
+    public string Name { get; private set;} = "";
+    public string Description { get; private set;} = "";
     public override string Id => throw new NotImplementedException();
 
     /// <summary>
     /// Register a new Product.
     /// </summary>
-    public async void RegisterProductAsync(RegisterProductCommand command, IProductService _productService)
+    public async Task RegisterProductAsync(RegisterProductCommand command, IProductService _productService)
     {   
         await EnsureProductIsUniqueAsync(command.Name, _productService);
 
