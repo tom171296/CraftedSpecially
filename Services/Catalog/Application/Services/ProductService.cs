@@ -1,11 +1,19 @@
+using CraftedSpecially.Catalog.Application.Interfaces;
 using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate;
 
 namespace CraftedSpecially.Catalog.Application.Services;
 
 public class ProductService : IProductService
 {
-    public ValueTask<bool> IsExistingProductAsync(string ProductName)
+    private readonly IProductRepository _productRepository;
+
+    public ProductService(IProductRepository productRepository)
     {
-        throw new NotImplementedException();
+        _productRepository = productRepository;
+    }
+
+    public async ValueTask<bool> IsExistingProductAsync(string ProductName)
+    {
+        return await _productRepository.GetProductByName(ProductName) != null;
     }
 }
