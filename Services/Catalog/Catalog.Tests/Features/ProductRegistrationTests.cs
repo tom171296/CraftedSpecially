@@ -4,6 +4,8 @@ using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate;
 using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Commands;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json;
 
@@ -17,11 +19,16 @@ public class ProductRegistrationTests
     {
         // Arrange
         var mockRepository = new Mock<IProductRepository>();
-        var command = new RegisterProductCommand("", "");
+        var command = new RegisterProductCommand("TestProductName", "TestProductDescription");
 
-        var webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-        {
-        });
+        var webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(
+            builder =>
+            {
+                builder.ConfigureTestServices(services => {
+                    services.AddTransient<IProductRepository>(provider => mockRepository.Object);
+                });
+            }
+        );
 
         var client = webApplicationFactory.CreateClient();
 

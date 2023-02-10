@@ -9,7 +9,7 @@ namespace CraftedSpecially.Catalog.Domain.Tests.Aggregates.ProductAggregate;
 public class ProductTests
 {
     [TestMethod]
-    public void RegisterProduct_withCorrectValues_ShouldYieldValidContract()
+    public async Task RegisterProduct_withCorrectValues_ShouldYieldValidContract()
     {
         // Arrage
         var _command = RegisterProductBuilder.Build("test product name");
@@ -17,7 +17,7 @@ public class ProductTests
         var sut = new Product();
 
         // Act
-        sut.RegisterProductAsync(_command, productServiceMock.Object);
+        await sut.RegisterProductAsync(_command, productServiceMock.Object);
 
         // Assert
         sut.IsValid.Should().BeTrue();
@@ -31,7 +31,7 @@ public class ProductTests
     }
 
     [TestMethod]
-    public void RegisterProduct_alreadyExistingName_shouldYieldViolation()
+    public async Task RegisterProduct_alreadyExistingName_shouldYieldViolation()
     {
         // Arrange
         var _command = RegisterProductBuilder.Build("test product name");
@@ -39,7 +39,7 @@ public class ProductTests
         var sut = new Product();
 
         // Act
-        sut.RegisterProductAsync(_command, productServiceMock.Object);
+        await sut.RegisterProductAsync(_command, productServiceMock.Object);
         
         // Assert
         sut.IsValid.Should().BeFalse();
