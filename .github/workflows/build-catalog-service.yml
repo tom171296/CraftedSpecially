@@ -42,5 +42,4 @@ jobs:
           context: .
           file: ./Services/Catalog/dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: catalogv1
+          tags: catalogv1
