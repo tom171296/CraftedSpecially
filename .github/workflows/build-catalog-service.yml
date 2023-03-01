@@ -42,4 +42,5 @@ jobs:
           context: .
           file: ./Services/Catalog/dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:catalogv1
+          tags: ${{ steps.meta.outputs.tags }} catalog
+          labels: ${{ steps.meta.outputs.labels }}
