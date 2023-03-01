@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: catalog-service
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
 
