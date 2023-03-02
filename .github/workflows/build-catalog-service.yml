@@ -42,5 +42,4 @@ jobs:
           context: .
           file: ./Services/Catalog/dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }},catalog
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ghcr.io/tom171296/craftedspecially/catalog-service:latest
