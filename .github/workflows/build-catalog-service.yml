@@ -2,8 +2,10 @@ name: Catalog service CI/CD
 run-name: ${{ github.actor }} is building the catalog service 🚀
 
 on:
-  [push]
-    # branches: ['master']
+  push:
+    branches: [
+      'master'
+    ]
 
 env:
   REGISTRY: ghcr.io
