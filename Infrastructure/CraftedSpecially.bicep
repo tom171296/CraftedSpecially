@@ -35,7 +35,7 @@ module applicationInfrastructure 'application-infrastructure/application-infrast
 }
 
 // Continous validation
-module continuousValidation 'ContinuousValidation/ContinuousValidation.bicep' = {
+module continuousValidation 'management-governance/continuous-validation/ContinuousValidation.bicep' = {
   name: 'ContinuousValidation'
   scope: rg
   params: {
