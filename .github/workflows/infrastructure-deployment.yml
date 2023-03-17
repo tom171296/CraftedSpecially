@@ -16,10 +16,10 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # Deploy Bicep file
-    - name: deploy
-      uses: azure/arm-deploy@v1
+    - name: Deploy bicep to Azure
+      uses: Azure/cli@v1
       with:
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-        template: ./infrastructure/CraftedSpecially.bicep
-        # parameters: 'storagePrefix=mystore storageSKU=Standard_LRS'
-        failOnStdErr: true
+        inlineScript: |
+          az deployment sub create \
+          --location westeurope \
+          --template-file ./Infrastructure/CraftedSpecially.bicep \
