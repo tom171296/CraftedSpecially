@@ -20,6 +20,7 @@ jobs:
       uses: Azure/cli@v1
       with:
         inlineScript: |
+          az config set bicep.use_binary_from_path=False
           az deployment sub create \
           --location westeurope \
           --template-file ./Infrastructure/CraftedSpecially.bicep \
