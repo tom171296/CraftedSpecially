@@ -3,7 +3,7 @@ on: [
 ]
 name: CraftedSpecially infrastructure deployment
 jobs:
-  build-and-deploy:
+  deploy-infrastructure:
     runs-on: ubuntu-latest
     steps:
 
