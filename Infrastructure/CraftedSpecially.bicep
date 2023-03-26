@@ -21,6 +21,7 @@ module runtimeInfrastructure 'runtime-infrastructure/runtime-infrastructure.bice
   scope: rg
   params: {
     location: rg.location
+    clusterPrefix: projectName
   }
 }
 
@@ -30,7 +31,7 @@ module applicationInfrastructure 'application-infrastructure/application-infrast
   scope: rg
   params: {
     location: rg.location
-    containerEnvId: runtimeInfrastructure.outputs.containerAppEnvironmentId
+    // containerEnvId: runtimeInfrastructure.outputs.containerAppEnvironmentId
   }
 }
 

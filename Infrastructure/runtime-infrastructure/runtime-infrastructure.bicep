@@ -1,4 +1,5 @@
 param location string
+param clusterPrefix string
 
 module law 'monitoring/analytisch-workspace.bicep' = {
   name: 'law'
@@ -7,13 +8,21 @@ module law 'monitoring/analytisch-workspace.bicep' = {
   }
 }
 
-module cae 'container-app-environment/container-app-environment.bicep' = {
-  name: 'cae'
+module aks 'aks/aks.bicep' = {
+  name: 'aks'
   params: {
     location: location
-    lawClientId: law.outputs.clientId
-    lawClientSecret: law.outputs.clientSecret
+    clusterPrefix: clusterPrefix
   }
 }
 
-output containerAppEnvironmentId string = cae.outputs.containerEnvId
+// module cae 'container-app-environment/container-app-environment.bicep' = {
+//   name: 'cae'
+//   params: {
+//     location: location
+//     lawClientId: law.outputs.clientId
+//     lawClientSecret: law.outputs.clientSecret
+//   }
+// }
+
+// output containerAppEnvironmentId string = cae.outputs.containerEnvId
