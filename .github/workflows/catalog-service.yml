@@ -66,4 +66,4 @@ jobs:
         with:
           namespace: 'default'
           manifests: |
-            ./Infrastructure/application-infrastructure/services/catalog-service.yaml
+            ./Infrastructure/application-infrastructure/services/catalog-service.yml
