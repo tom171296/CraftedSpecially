@@ -1,11 +1,9 @@
 name: Catalog service CI/CD
 run-name: ${{ github.actor }} is building the catalog service 🚀
 
-on:
-  push:
-    branches: [
-      'main'
-    ]
+on: [
+  workflow_dispatch
+]
 
 env:
   REGISTRY: ghcr.io
@@ -39,3 +37,32 @@ jobs:
           file: ./Services/Catalog/dockerfile
           push: true
           tags: ghcr.io/tom171296/craftedspecially/catalog-service:latest
+
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+      
+      - name: Azure login
+        id: login
+        uses: azure/login@v1.4.3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Set AKS context
+        id: set-context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: 'CraeftedSpecially'
+          cluster-name: 'aks'
+      
+      - name: Setup kubectl
+        id: install-kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Deploy to AKS
+        id: deploy
+        uses: Azure/K8s-deploy@v4
+        with:
+          namespace: 'default'
+          manifests: |
+            ./Services/Catalog/deployment.yaml
