@@ -53,7 +53,7 @@ jobs:
         id: set-context
         uses: azure/aks-set-context@v3
         with:
-          resource-group: 'CraeftedSpecially'
+          resource-group: 'CraftedSpecially'
           cluster-name: 'aks'
       
       - name: Setup kubectl
