@@ -39,6 +39,7 @@ jobs:
           tags: ghcr.io/tom171296/craftedspecially/catalog-service:latest
 
   deployment:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       
