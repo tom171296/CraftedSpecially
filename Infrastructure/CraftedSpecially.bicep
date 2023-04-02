@@ -41,5 +41,6 @@ module continuousValidation 'management-governance/continuous-validation/Continu
   scope: rg
   params: {
     location: rg.location
+    existingAksName: runtimeInfrastructure.outputs.aksClusterName
   }
 }
