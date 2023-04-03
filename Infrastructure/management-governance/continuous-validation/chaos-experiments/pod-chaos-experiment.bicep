@@ -2,7 +2,7 @@
 param location string
 param existingAksName string
 
-var aksClusterAdminRole = '0ab0b1a8-8aac-4efd-b8c2-3ee1fb270be8'
+var clusterAdmin = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '0ab0b1a8-8aac-4efd-b8c2-3ee1fb270be8')
 
 resource existingAks 'Microsoft.ContainerService/managedClusters@2022-11-02-preview' existing = {
   name: existingAksName
@@ -62,9 +62,9 @@ resource aksChaosPodExperiment 'Microsoft.Chaos/experiments@2022-10-01-preview' 
 }
 
 resource chaosExperimentK8sClusterAdmin 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(aksChaosPodExperiment.name, aksClusterAdminRole, 'experiment')
+  name: guid(aksChaosPodExperiment.name, clusterAdmin, 'experiment')
   properties: {
-    roleDefinitionId: aksClusterAdminRole
+    roleDefinitionId: clusterAdmin
     principalId: aksChaosPodExperiment.identity.principalId
     principalType: 'ServicePrincipal'
   }
