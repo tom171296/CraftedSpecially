@@ -9,7 +9,7 @@ resource existingAks 'Microsoft.ContainerService/managedClusters@2022-11-02-prev
 }
 
 resource aksChaosTarget 'Microsoft.Chaos/targets@2022-10-01-preview' = {
-  name: 'microsoft-aks'
+  name: 'microsoft-AzureKubernetesServiceChaosMesh'
   scope: existingAks
   properties: {
     // can be empty?
