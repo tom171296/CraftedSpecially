@@ -9,7 +9,7 @@ resource existingAks 'Microsoft.ContainerService/managedClusters@2022-11-02-prev
 }
 
 resource aksChaosTarget 'Microsoft.Chaos/targets@2022-10-01-preview' = {
-  name: 'aksChaosTarget'
+  name: 'microsoft-aks'
   scope: existingAks
   properties: {
     // can be empty?
