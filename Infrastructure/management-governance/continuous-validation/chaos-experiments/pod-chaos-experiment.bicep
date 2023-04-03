@@ -64,7 +64,7 @@ resource aksChaosPodExperiment 'Microsoft.Chaos/experiments@2022-10-01-preview' 
 
 resource chaosExperimentK8sClusterAdmin 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(aksChaosPodExperiment.name, aksClusterAdminRole, 'experiment')
-  scope: resourceGroup()
+  scope: aksChaosPodExperiment
   properties: {
     roleDefinitionId: aksClusterAdminRole
     principalId: aksChaosPodExperiment.identity.principalId
