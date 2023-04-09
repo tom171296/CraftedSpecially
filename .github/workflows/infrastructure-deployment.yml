@@ -24,3 +24,44 @@ jobs:
           az deployment sub create \
           --location westeurope \
           --template-file ./Infrastructure/CraftedSpecially.bicep \
+
+  deploy-aks-setup:
+    needs: deploy-infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Azure login
+        id: login
+        uses: azure/login@v1.4.3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set AKS context
+        id: set-context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: 'CraftedSpecially'
+          cluster-name: 'aks'
+      
+      - name: Setup kubectl
+        id: install-kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Deploy to AKS
+        id: deploy
+        uses: Azure/K8s-deploy@v4
+        with:
+          namespace: 'default'
+          manifests: |
+            ./Infrastructure/application-infrastructure/aks-setup/namespaces.yml
+
+      - name: 'Deploy'
+        uses: 'deliverybot/helm@v1'
+        with:
+          release: 'chaos-mesh'
+          namespace: 'chaos-mesh'
+          chart: 'chaos-mesh'
+          token: '${{ github.token }}'
