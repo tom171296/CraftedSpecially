@@ -57,11 +57,3 @@ jobs:
           namespace: 'default'
           manifests: |
             ./Infrastructure/application-infrastructure/aks-setup/namespaces.yml
-
-      - name: 'Deploy'
-        uses: 'deliverybot/helm@v1'
-        with:
-          release: 'chaos-mesh'
-          namespace: 'chaos-mesh'
-          chart: 'chaos-mesh'
-          token: '${{ github.token }}'
