@@ -15,6 +15,6 @@ module northEuropeAppService 'app-service/app-service.bicep' = {
   params: {
     location: 'northeurope'
     serverfarmId: northEuropeServerfarmId
-    targetName: 'westeurope-app-service'
+    targetName: 'northeurope-app-service'
   }
 }
