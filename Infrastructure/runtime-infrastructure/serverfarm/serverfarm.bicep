@@ -20,3 +20,5 @@ resource serverfarm 'Microsoft.Web/serverfarms@2021-03-01' = {
     maximumElasticWorkerCount: 1
   }
 }
+
+output serverfarmId string = serverfarm.id

@@ -29,8 +29,8 @@ module applicationInfrastructure 'application-infrastructure/application-infrast
   name: 'ApplicationInfrastructure'
   scope: rg
   params: {
-    location: rg.location
-    // containerEnvId: runtimeInfrastructure.outputs.containerAppEnvironmentId
+    westEuropeServerfarmId: runtimeInfrastructure.outputs.westeuropeServerfarmId
+    northEuropeServerfarmId: runtimeInfrastructure.outputs.northeuropeServerfarmId
   }
 }
 
