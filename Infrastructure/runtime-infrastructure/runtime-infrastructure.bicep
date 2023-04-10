@@ -1,5 +1,4 @@
 param location string
-param clusterPrefix string
 
 module law 'monitoring/analytisch-workspace.bicep' = {
   name: 'law'
@@ -8,13 +7,18 @@ module law 'monitoring/analytisch-workspace.bicep' = {
   }
 }
 
-module aks 'aks/aks.bicep' = {
-  name: 'aks'
+module westEuropeServerfarm 'serverfarm/serverfarm.bicep' = {
+  name: 'westeuropeServerfarm'
   params: {
     location: location
-    clusterPrefix: clusterPrefix
+    targetName: 'westeurope'
   }
 }
 
-output aksClusterName string = aks.outputs.aksClusterName
-
+module northEuropeServerfarm 'serverfarm/serverfarm.bicep' = {
+  name: 'northeuropeServerfarm'
+  params: {
+    location: location
+    targetName: 'northeurope'
+  }
+}

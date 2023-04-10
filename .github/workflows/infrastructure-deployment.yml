@@ -28,6 +28,10 @@ jobs:
   deploy-aks-setup:
     needs: deploy-infrastructure
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
     steps:
       
       - name: Checkout repository
@@ -54,6 +58,7 @@ jobs:
         id: deploy
         uses: Azure/K8s-deploy@v4
         with:
-          namespace: 'default'
+          action: 'deploy'
+          namespace: 'chaos-mesh'
           manifests: |
             ./Infrastructure/application-infrastructure/aks-setup/namespaces.yml
