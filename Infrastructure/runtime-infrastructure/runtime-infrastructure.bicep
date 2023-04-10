@@ -7,21 +7,10 @@ module law 'monitoring/analytisch-workspace.bicep' = {
   }
 }
 
-module westEuropeServerfarm 'serverfarm/serverfarm.bicep' = {
-  name: 'westeuropeServerfarm'
+module aks 'aks/aks.bicep' = {
+  name: 'aks'
   params: {
-    location: 'westeurope'
-    targetName: 'westeurope'
+    clusterPrefix: 'aks'
+    location: location
   }
 }
-
-module northEuropeServerfarm 'serverfarm/serverfarm.bicep' = {
-  name: 'northeuropeServerfarm'
-  params: {
-    location: 'northeurope'
-    targetName: 'northeurope'
-  }
-}
-
-output westeuropeServerfarmId string = westEuropeServerfarm.outputs.serverfarmId
-output northeuropeServerfarmId string = northEuropeServerfarm.outputs.serverfarmId

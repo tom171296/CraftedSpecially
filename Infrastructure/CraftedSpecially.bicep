@@ -3,7 +3,6 @@ targetScope='subscription'
 // Parameters
 param projectLocation string = 'westeurope'
 
-
 // Variables
 var projectName = 'CraftedSpecially'
 
@@ -29,8 +28,7 @@ module applicationInfrastructure 'application-infrastructure/application-infrast
   name: 'ApplicationInfrastructure'
   scope: rg
   params: {
-    westEuropeServerfarmId: runtimeInfrastructure.outputs.westeuropeServerfarmId
-    northEuropeServerfarmId: runtimeInfrastructure.outputs.northeuropeServerfarmId
+    location: rg.location
   }
 }
 
