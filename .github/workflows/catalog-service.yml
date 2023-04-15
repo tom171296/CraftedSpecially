@@ -72,7 +72,7 @@ jobs:
             ./Services/Catalog/catalog-service.yml
     
   load-test: 
-    needs: continuous-validation
+    needs: deployment
     runs-on: ubuntu-latest
     environment: Continuous-validation
 
