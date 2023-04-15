@@ -75,13 +75,19 @@ jobs:
     needs: deployment
     runs-on: ubuntu-latest
     environment: Continuous-validation
+    
+  load-test: 
+    needs: continuous-validation
+    runs-on: ubuntu-latest
+    environment: Continuous-validation
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Run tests
+      - name: Run load test
         run: |
-          echo "Running tests..."
+          echo "Running load test..."
 
   test: 
     needs: deployment

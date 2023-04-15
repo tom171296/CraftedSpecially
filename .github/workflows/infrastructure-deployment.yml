@@ -60,7 +60,7 @@ jobs:
   deploy-continuous-validation:
     runs-on: ubuntu-latest
     needs: setup-namespaces
-    environment: Release
+    environment: Continuous-validation
     steps:
 
     - uses: azure/login@v1
