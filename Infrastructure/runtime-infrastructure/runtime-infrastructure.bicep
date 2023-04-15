@@ -14,3 +14,5 @@ module aks 'aks/aks.bicep' = {
     location: location
   }
 }
+
+output aksClusterName string = aks.outputs.aksClusterName
