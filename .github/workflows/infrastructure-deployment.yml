@@ -57,9 +57,10 @@ jobs:
         manifests: |
             ./Services/cluster-setup.yml
   
-  deploy-chaos-mesh:
+  deploy-continuous-validation:
     runs-on: ubuntu-latest
     needs: setup-namespaces
+    environment: Release
     steps:
 
     - uses: azure/login@v1
