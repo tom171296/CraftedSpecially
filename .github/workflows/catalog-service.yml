@@ -82,3 +82,15 @@ jobs:
       - name: Run tests
         run: |
           echo "Running tests..."
+
+  test: 
+    needs: deployment
+    runs-on: ubuntu-latest
+    environment: Continuous-validation
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run tests
+        run: |
+          echo "Running tests..."
