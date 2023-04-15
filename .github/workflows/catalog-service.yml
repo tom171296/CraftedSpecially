@@ -74,7 +74,7 @@ jobs:
   Load-test: 
     needs: Deployment
     runs-on: ubuntu-latest
-    environment: Deployment
+    environment: Continuous-validation
 
     steps:
       - name: Checkout repository
