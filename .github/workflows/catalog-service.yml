@@ -72,7 +72,7 @@ jobs:
             ./Services/Catalog/catalog-service.yml
   
   Load-test: 
-    needs: Load-test
+    needs: Deployment
     runs-on: ubuntu-latest
     environment: Deployment
 
@@ -84,7 +84,6 @@ jobs:
         run: |
           echo "Running load test..."
             
-  
   Continuous-validation:
     needs: Load-test
     runs-on: ubuntu-latest
