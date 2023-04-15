@@ -71,7 +71,7 @@ jobs:
           manifests: |
             ./Services/Catalog/catalog-service.yml
     
-  load-test: 
+  Continuous-validation:
     needs: deployment
     runs-on: ubuntu-latest
     environment: Continuous-validation
@@ -84,18 +84,9 @@ jobs:
         run: |
           echo "Running load test..."
 
-  chaos-test:
-    needs: load-test
-    runs-on: ubuntu-latest
-    environment: Continuous-validation
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run chaos test
+      - name: Run chaos experiment
         run: |
-          echo "Running load test..."
+          echo "Running chaos test..."
 
   test: 
     needs: deployment
