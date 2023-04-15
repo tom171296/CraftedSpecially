@@ -70,9 +70,23 @@ jobs:
           namespace: 'default'
           manifests: |
             ./Services/Catalog/catalog-service.yml
-    
+  
+  Load-test: 
+    needs: Load-test
+    runs-on: ubuntu-latest
+    environment: Deployment
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run load test
+        run: |
+          echo "Running load test..."
+            
+  
   Continuous-validation:
-    needs: deployment
+    needs: Load-test
     runs-on: ubuntu-latest
     environment: Continuous-validation
 
