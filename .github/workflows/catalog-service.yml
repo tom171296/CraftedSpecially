@@ -72,7 +72,7 @@ jobs:
             ./Services/Catalog/catalog-service.yml
   
   Release: 
-    needs: Deployment
+    needs: Continuous-validation
     runs-on: ubuntu-latest
     environment: Release
     steps:
