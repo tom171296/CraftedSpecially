@@ -71,6 +71,18 @@ jobs:
           manifests: |
             ./Services/Catalog/catalog-service.yml
   
+  Release: 
+    needs: deployment
+    runs-on: ubuntu-latest
+    environment: Release
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run release
+        run: |
+          echo "Running release..."
+
   Load-test: 
     needs: Deployment
     runs-on: ubuntu-latest
@@ -100,15 +112,3 @@ jobs:
       - name: Run chaos experiment
         run: |
           echo "Running chaos test..."
-
-  test: 
-    needs: deployment
-    runs-on: ubuntu-latest
-    environment: Release
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run tests
-        run: |
-          echo "Running tests..."
