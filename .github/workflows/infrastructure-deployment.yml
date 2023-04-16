@@ -83,4 +83,4 @@ jobs:
       run: helm repo add chaos-mesh https://charts.chaos-mesh.org
 
     - name: Install Chaos Mesh
-      run: helm install chaos-mesh chaos-mesh/chaos-mesh -n=chaos-mesh --set chaosDaemon.runtime=containerd --set chaosDaemon.socketPath=/run/containerd/containerd.sock --version 2.5.1
+      run: helm install chaos-mesh chaos-mesh/chaos-mesh -n=chaos-testing --set chaosDaemon.runtime=containerd --set chaosDaemon.socketPath=/run/containerd/containerd.sock --version 2.5.1
