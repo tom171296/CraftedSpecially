@@ -12,6 +12,13 @@ resource aksChaosTarget 'Microsoft.Chaos/targets@2022-10-01-preview' = {
   name: 'microsoft-AzureKubernetesServiceChaosMesh'
   scope: existingAks
   properties: {
+
+  }
+
+  resource podChaos 'capabilities' = {
+    name: 'PodChaos-2.1'
+    properties: {
+    }
   }
 }
 
