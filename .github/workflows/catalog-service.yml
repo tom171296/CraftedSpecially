@@ -72,7 +72,7 @@ jobs:
             ./Services/Catalog/catalog-service.yml
   
   Release: 
-    needs: Continuous-validation
+    needs: Deployment
     runs-on: ubuntu-latest
     environment: Release
     steps:
@@ -109,6 +109,14 @@ jobs:
         run: |
           echo "Running load test..."
 
-      - name: Run chaos experiment
-        run: |
-          echo "Running chaos test..."
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure CLI script
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            az rest --method post --uri https://management.azure.com/subscriptions/db92ebba-e37a-4453-b9ce-cb8b80a80469/resourceGroups/CraftedSpecially/providers/Microsoft.Chaos/experiments/aks-pod-chaos/start?api-version=2021-09-15-preview
