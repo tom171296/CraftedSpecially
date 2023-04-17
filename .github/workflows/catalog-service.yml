@@ -92,9 +92,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Run load test
-        run: |
-          echo "Running load test..."
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: 'Azure Load Testing'
+        uses: azure/load-testing@v1
+        with: 
+          resourceGroup: 'crafted-specially'
+          loadTestResource: 'loadtest'
+          loadTestConfigFIle: './Services/Catalog/loadtest.yml'
             
   Continuous-validation:
     needs: Load-test
@@ -117,8 +125,11 @@ jobs:
           inlineScript: |
             az rest --method post --uri https://management.azure.com/subscriptions/db92ebba-e37a-4453-b9ce-cb8b80a80469/resourceGroups/CraftedSpecially/providers/Microsoft.Chaos/experiments/aks-pod-chaos/start?api-version=2021-09-15-preview
 
-      - name: Run load test
-        run: |
-          echo "Running load test..."
+      - name: 'Azure Load Testing'
+        uses: azure/load-testing@v1
+        with: 
+          resourceGroup: 'crafted-specially'
+          loadTestResource: 'loadtest'
+          loadTestConfigFIle: './Services/Catalog/loadtest.yml'
 
       
