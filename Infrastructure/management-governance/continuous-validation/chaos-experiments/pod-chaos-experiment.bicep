@@ -56,7 +56,7 @@ resource aksChaosPodExperiment 'Microsoft.Chaos/experiments@2022-10-01-preview' 
                 parameters: [
                   {
                     key: 'jsonSpec'
-                    value: '{"action":"pod-failure","mode":"all","duration":"600s","selector":{"namespaces":["crafted-specially"]}}'
+                    value: '{"action":"pod-failure","mode":"all","duration":"120s","selector":{"namespaces":["crafted-specially"]}}'
                   }
                 ]
               }

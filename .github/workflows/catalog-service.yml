@@ -67,7 +67,7 @@ jobs:
         id: deploy
         uses: Azure/K8s-deploy@v4
         with:
-          namespace: 'default'
+          namespace: 'crafted-specially'
           manifests: |
             ./Services/Catalog/catalog-service.yml
   
@@ -105,10 +105,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Run load test
-        run: |
-          echo "Running load test..."
-
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -120,3 +116,9 @@ jobs:
           azcliversion: 2.30.0
           inlineScript: |
             az rest --method post --uri https://management.azure.com/subscriptions/db92ebba-e37a-4453-b9ce-cb8b80a80469/resourceGroups/CraftedSpecially/providers/Microsoft.Chaos/experiments/aks-pod-chaos/start?api-version=2021-09-15-preview
+
+      - name: Run load test
+        run: |
+          echo "Running load test..."
+
+      
