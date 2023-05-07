@@ -1,6 +1,6 @@
 version: v0.1
 testName: ci_test
-testPlan: ci_test.jmx
+testPlan: ContinousValidationJmeterScript.jmx
 description: Load test from CI
 engineInstances: 1
 failureCriteria:
