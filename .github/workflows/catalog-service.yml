@@ -100,7 +100,7 @@ jobs:
       - name: 'Azure Load Testing'
         uses: azure/load-testing@v1
         with: 
-          resourceGroup: 'crafted-specially'
+          resourceGroup: 'CraftedSpecially'
           loadTestResource: 'loadtest'
           loadTestConfigFIle: './Services/Catalog/loadtest.yml'
             
@@ -128,7 +128,7 @@ jobs:
       - name: 'Azure Load Testing'
         uses: azure/load-testing@v1
         with: 
-          resourceGroup: 'crafted-specially'
+          resourceGroup: 'CraftedSpecially'
           loadTestResource: 'loadtest'
           loadTestConfigFIle: './Services/Catalog/loadtest.yml'
 
