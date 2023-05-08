@@ -11,7 +11,7 @@ env:
 
 jobs:
 
-  build:
+  Build:
 
     runs-on: ubuntu-latest
     
@@ -38,9 +38,13 @@ jobs:
           push: true
           tags: ghcr.io/tom171296/craftedspecially/catalog-service:latest
 
-  deployment:
+  Deployment:
+    needs: Build
     runs-on: ubuntu-latest
     steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
       
       - name: Azure login
         id: login
@@ -52,7 +56,7 @@ jobs:
         id: set-context
         uses: azure/aks-set-context@v3
         with:
-          resource-group: 'CraeftedSpecially'
+          resource-group: 'CraftedSpecially'
           cluster-name: 'aks'
       
       - name: Setup kubectl
@@ -63,6 +67,69 @@ jobs:
         id: deploy
         uses: Azure/K8s-deploy@v4
         with:
-          namespace: 'default'
+          namespace: 'crafted-specially'
           manifests: |
-            ./Services/Catalog/deployment.yaml
+            ./Services/Catalog/catalog-service.yml
+  
+  Release: 
+    needs: Deployment
+    runs-on: ubuntu-latest
+    environment: Release
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run release
+        run: |
+          echo "Running release..."
+
+  Load-test: 
+    needs: Deployment
+    runs-on: ubuntu-latest
+    environment: Continuous-validation
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: 'Azure Load Testing'
+        uses: azure/load-testing@v1
+        with: 
+          resourceGroup: 'CraftedSpecially'
+          loadTestResource: 'loadtest'
+          loadTestConfigFIle: './Services/Catalog/loadtest.yml'
+            
+  Continuous-validation:
+    needs: Load-test
+    runs-on: ubuntu-latest
+    environment: Continuous-validation
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Start chaos experiment
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            az rest --method post --uri https://management.azure.com/subscriptions/db92ebba-e37a-4453-b9ce-cb8b80a80469/resourceGroups/CraftedSpecially/providers/Microsoft.Chaos/experiments/aks-pod-chaos/start?api-version=2021-09-15-preview
+
+      - name: 'Run loadtest'
+        uses: azure/load-testing@v1
+        with: 
+          resourceGroup: 'CraftedSpecially'
+          loadTestResource: 'loadtest'
+          loadTestConfigFIle: './Services/Catalog/loadtest.yml'
+
+      

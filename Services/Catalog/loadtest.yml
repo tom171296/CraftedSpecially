@@ -1,0 +1,8 @@
+version: v0.1
+testName: ci_test
+testPlan: ContinousValidationJmeterScript.jmx
+description: Load test from CI
+engineInstances: 1
+failureCriteria:
+  - avg(response_time_ms) > 300
+  - percentage(error) > 10

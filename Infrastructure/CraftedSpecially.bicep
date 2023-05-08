@@ -3,7 +3,6 @@ targetScope='subscription'
 // Parameters
 param projectLocation string = 'westeurope'
 
-
 // Variables
 var projectName = 'CraftedSpecially'
 
@@ -21,7 +20,6 @@ module runtimeInfrastructure 'runtime-infrastructure/runtime-infrastructure.bice
   scope: rg
   params: {
     location: rg.location
-    clusterPrefix: projectName
   }
 }
 
@@ -31,7 +29,6 @@ module applicationInfrastructure 'application-infrastructure/application-infrast
   scope: rg
   params: {
     location: rg.location
-    // containerEnvId: runtimeInfrastructure.outputs.containerAppEnvironmentId
   }
 }
 
@@ -41,5 +38,6 @@ module continuousValidation 'management-governance/continuous-validation/Continu
   scope: rg
   params: {
     location: rg.location
+    existingAKsName: runtimeInfrastructure.outputs.aksClusterName
   }
 }

@@ -1,0 +1,18 @@
+#############################################
+  # CraftedSpecially namespace
+#############################################
+
+apiVersion: v1  
+kind: Namespace  
+metadata:  
+  name: crafted-specially
+
+---
+#############################################
+  # Chaos mesh namespace
+#############################################
+
+apiVersion: v1  
+kind: Namespace  
+metadata:  
+  name: chaos-testing
