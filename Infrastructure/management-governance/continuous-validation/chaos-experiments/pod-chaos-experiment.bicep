@@ -50,7 +50,7 @@ resource aksChaosPodExperiment 'Microsoft.Chaos/experiments@2022-10-01-preview' 
             actions: [
               {
                 type: 'continuous'
-                duration: 'PT3M'
+                duration: 'PT10M'
                 name: 'urn:csci:microsoft:azureKubernetesServiceChaosMesh:podChaos/2.1'
                 selectorId: aksChaosTarget.id
                 parameters: [
