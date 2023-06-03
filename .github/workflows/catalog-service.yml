@@ -30,8 +30,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build container locally
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Services/Catalog/dockerfile
+          load: true
+          tags: catalog:${{ github.run_number}}
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'catalog:${{ github.run_number}}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
       - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        uses: docker/build-push-action@v4
         with:
           context: .
           file: ./Services/Catalog/dockerfile
