@@ -98,7 +98,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: 'Azure Load Testing'
-        uses: azure/load-testing@v1
+        uses: tom171296/load-testing@bugfix/resource-not-found
         with: 
           resourceGroup: 'CraftedSpecially'
           loadTestResource: 'loadtest'
