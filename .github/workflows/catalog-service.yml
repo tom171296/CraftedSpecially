@@ -96,17 +96,9 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Start chaos experiment
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.30.0
-          inlineScript: |
-            az account show
-
       
       - name: 'Azure Load Testing'
-        uses: azure/load-testing@v1.1.17
+        uses: azure/load-testing@v1
         with: 
           resourceGroup: 'CraftedSpecially'
           loadTestResource: 'loadtest'
