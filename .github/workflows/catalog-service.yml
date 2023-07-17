@@ -98,7 +98,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: 'Azure Load Testing'
-        uses: azure/load-testing@v1.1.15
+        uses: azure/load-testing@v1.1.17
         with: 
           resourceGroup: 'CraftedSpecially'
           loadTestResource: 'loadtest'
@@ -126,7 +126,7 @@ jobs:
             az rest --method post --uri https://management.azure.com/subscriptions/db92ebba-e37a-4453-b9ce-cb8b80a80469/resourceGroups/CraftedSpecially/providers/Microsoft.Chaos/experiments/aks-pod-chaos/start?api-version=2021-09-15-preview
 
       - name: 'Run loadtest'
-        uses: azure/load-testing@v1.1.15
+        uses: azure/load-testing@v1.1.17
         with: 
           resourceGroup: 'CraftedSpecially'
           loadTestResource: 'loadtest'
