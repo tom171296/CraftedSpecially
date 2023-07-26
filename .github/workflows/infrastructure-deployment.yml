@@ -57,5 +57,13 @@ jobs:
         manifests: |
             ./Services/cluster-setup.yml
   
+  Continuous-Validation:
+    runs-on: ubuntu-latest
+    steps:
+
+    # Checkout code
+    - uses: actions/checkout@main
+
     - name: Deploy Continuous Validation
+      id: deploy-continuous-validation
       uses: ./modules/continuous-validation.yml
