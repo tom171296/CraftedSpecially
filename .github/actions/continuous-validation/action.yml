@@ -4,6 +4,9 @@ inputs:
   azure_credantials:
     description: 'Azure credentials'
     required: true
+  GITHUB_TOKEN:
+    description: 'Azure credentials'
+    required: true
 
 runs:
   using: 'composite'
@@ -11,7 +14,7 @@ runs:
 
   - uses: azure/login@v1
     with:
-      creds: ${{ secrets.azure_credantials }}
+      creds: ${{ inputs.azure_credantials }}
 
   - name: Set AKS context
     id: set-context
@@ -22,7 +25,7 @@ runs:
   
   - uses: azure/setup-helm@v3
     with:
-      token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
+      token: ${{ inputs.GITHUB_TOKEN }} # only needed if version is 'latest'
     id: install-helm
   
   - name: Add Chaos Mesh repo
