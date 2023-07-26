@@ -1,5 +1,8 @@
 name: Deploy continuous validation
 
+on:
+    workflow_call
+
 deploy-continuous-validation:
     runs-on: ubuntu-latest
     needs: setup-namespaces

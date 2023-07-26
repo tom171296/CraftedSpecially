@@ -61,9 +61,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    # Checkout code
-    - uses: actions/checkout@main
-
     - name: Deploy Continuous Validation
       id: deploy-continuous-validation
-      uses: ./modules/continuous-validation.yml
+      uses: ./.github/workflows/modules/continuous-validation.yml
