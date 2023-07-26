@@ -59,7 +59,11 @@ jobs:
   
   Continuous-Validation:
     runs-on: ubuntu-latest
+    needs: setup-namespaces
     steps:
+
+      # Checkout code
+    - uses: actions/checkout@main
 
     - name: Deploy Continuous Validation
       id: deploy-continuous-validation
