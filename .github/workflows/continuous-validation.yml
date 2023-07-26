@@ -1,11 +1,11 @@
 name: Deploy continuous validation
 
 on:
-    workflow_call
+  workflow_call:
 
-deploy-continuous-validation:
+jobs:
+  Continuous-Validation:
     runs-on: ubuntu-latest
-    needs: setup-namespaces
     environment: Continuous-validation
     steps:
 
