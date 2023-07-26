@@ -1,7 +1,7 @@
 name: 'Deploy continuous validation'
 description: 'Deploy all the stuff you need for the continuous validation of your application'
 inputs:
-  azure_credantials:
+  AZURE_CREDENTIALS:
     description: 'Azure credentials'
     required: true
   GITHUB_TOKEN:
@@ -14,7 +14,7 @@ runs:
 
   - uses: azure/login@v1
     with:
-      creds: ${{ inputs.azure_credantials }}
+      creds: ${{ inputs.AZURE_CREDENTIALS }}
 
   - name: Set AKS context
     id: set-context

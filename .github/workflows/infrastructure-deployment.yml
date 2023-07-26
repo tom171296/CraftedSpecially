@@ -69,5 +69,5 @@ jobs:
       id: deploy-continuous-validation
       uses: ./.github/actions/continuous-validation
       with:
-        azure_credantials: ${{ secrets.AZURE_CREDENTIALS }}
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
