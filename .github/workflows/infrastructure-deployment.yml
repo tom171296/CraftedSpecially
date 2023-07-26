@@ -67,4 +67,4 @@ jobs:
 
     - name: Deploy Continuous Validation
       id: deploy-continuous-validation
-      uses: ./.github/workflows/continuous-validation.yml
+      uses: ./.github/actions/continuous-validation
