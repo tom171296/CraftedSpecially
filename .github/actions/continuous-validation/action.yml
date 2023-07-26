@@ -2,6 +2,9 @@ name: Deploy continuous validation
 
 on:
   workflow_call:
+    secrets:
+      azure_credantials:
+        required: true
 
 jobs:
   Continuous-Validation:
@@ -11,7 +14,7 @@ jobs:
 
     - uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{ secrets.azure_credantials }}
 
     - name: Set AKS context
       id: set-context

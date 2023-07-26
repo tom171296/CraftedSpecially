@@ -3,6 +3,7 @@ on: [
 ]
 name: CraftedSpecially infrastructure deployment
 jobs:
+  
   # deploy-infrastructure:
   #   runs-on: ubuntu-latest
   #   steps:
@@ -59,12 +60,7 @@ jobs:
   
   Continuous-Validation:
     runs-on: ubuntu-latest
-    # needs: setup-namespaces
     steps:
-
-      # Checkout code
-    - uses: actions/checkout@main
-
-    - name: Deploy Continuous Validation
-      id: deploy-continuous-validation
-      uses: ./.github/actions/continuous-validation
+    - uses: ./.github/actions/continuous-validation
+      secrets:
+        azure_credantials: ${{ secrets.AZURE_CREDENTIALS }}
