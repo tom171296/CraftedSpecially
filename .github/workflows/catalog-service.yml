@@ -10,139 +10,15 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-
   mutation-test:
-    uses: actions/checkout@v3
+  uses: actions/checkout@v3
 
-    uses: tom171296/run-stryker-net@v0.0.2
-    with:
-      testProject: "./Services/Catalog/Domain.tests" # required
-      breakAt: "75" # Optional
+  uses: tom171296/run-stryker-net@v0.0.2
+  with:
+    testProject: "./Services/Catalog/Domain.tests" # required
+    breakAt: "75" # Optional
 
-    uses: actions/upload-artifact@v3
-    with:
-      name: html-report
-      path: ${{github.workspace}}/Catalog.tests/StrykerOutput/**/**/*.html
-
-  Build:
-
-    runs-on: ubuntu-latest
-    
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: .
-          file: ./Services/Catalog/dockerfile
-          push: true
-          tags: ghcr.io/tom171296/craftedspecially/catalog-service:latest
-
-  Deployment:
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      
-      - name: Azure login
-        id: login
-        uses: azure/login@v1.4.3
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
-      - name: Set AKS context
-        id: set-context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: 'CraftedSpecially'
-          cluster-name: 'aks'
-      
-      - name: Setup kubectl
-        id: install-kubectl
-        uses: azure/setup-kubectl@v3
-
-      - name: Deploy to AKS
-        id: deploy
-        uses: Azure/K8s-deploy@v4
-        with:
-          namespace: 'crafted-specially'
-          manifests: |
-            ./Services/Catalog/catalog-service.yml
-  
-  Release: 
-    needs: Deployment
-    runs-on: ubuntu-latest
-    environment: Release
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run release
-        run: |
-          echo "Running release..."
-
-  Load-test: 
-    needs: Deployment
-    runs-on: ubuntu-latest
-    environment: Continuous-validation
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
-      - name: 'Azure Load Testing'
-        uses: azure/load-testing@v1.1.18
-        with: 
-          resourceGroup: 'CraftedSpecially'
-          loadTestResource: 'loadtest'
-          loadTestConfigFIle: './Services/Catalog/loadtest.yml'
-            
-  Continuous-validation:
-    needs: Load-test
-    runs-on: ubuntu-latest
-    environment: Continuous-validation
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Start chaos experiment
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.30.0
-          inlineScript: |
-            az rest --method post --uri https://management.azure.com/subscriptions/db92ebba-e37a-4453-b9ce-cb8b80a80469/resourceGroups/CraftedSpecially/providers/Microsoft.Chaos/experiments/aks-pod-chaos/start?api-version=2021-09-15-preview
-
-      - name: 'Run loadtest'
-        uses: azure/load-testing@v1.1.18
-        with: 
-          resourceGroup: 'CraftedSpecially'
-          loadTestResource: 'loadtest'
-          loadTestConfigFIle: './Services/Catalog/loadtest.yml'
-
-      
+  uses: actions/upload-artifact@v3
+  with:
+    name: html-report
+    path: ${{github.workspace}}/Catalog.tests/StrykerOutput/**/**/*.html
