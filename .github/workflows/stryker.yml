@@ -16,7 +16,7 @@ jobs:
       - name: Run Stryker.NET
         uses: stryker-mutator/github-action@11-support-strykerjs-to-be-ran-with-this-action
         with:
-          testProject: "./Services/Catalog/" # required
+          testProject: "Services/Catalog/" # required
           breakAt: "75" # Optional
 
       - name: Upload report
