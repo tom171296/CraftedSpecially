@@ -18,3 +18,6 @@ To get started with continuous validation these steps need to be taken:
     - Deploy the catalog service to the environment
     - Run a loadtest under normal circumstances
     - Run a loadtest under chaos circumstances
+
+## Mutation testing
+test
