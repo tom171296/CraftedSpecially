@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Stryker.NET
-        uses: tom171296/run-stryker-net@v0.0.2
+        uses: stryker-mutator/github-action@v0.0.1
         with:
           testProject: "./Services/Catalog/Domain.Tests/" # required
           breakAt: "75" # Optional
