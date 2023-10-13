@@ -11,6 +11,19 @@ env:
 
 jobs:
 
+  mutation-test:
+    uses: actions/checkout@v3
+
+    uses: tom171296/run-stryker-net@v0.0.2
+    with:
+      testProject: "./Services/Catalog/Domain.tests" # required
+      breakAt: "75" # Optional
+
+    uses: actions/upload-artifact@v3
+    with:
+      name: html-report
+      path: ${{github.workspace}}/Catalog.tests/StrykerOutput/**/**/*.html
+
   Build:
 
     runs-on: ubuntu-latest
