@@ -2,7 +2,9 @@ name: Run stryker CI/CD
 run-name: ${{ github.actor }} is killing some mutants 👽👾🧌
 
 on: 
-  workflow_dispatch:
+  push:
+    branches:
+      - feature/stryker
 
 jobs:
   mutation-test:
