@@ -1,4 +1,4 @@
-name: Catalog service CI/CD
+name: Run stryker CI/CD
 run-name: ${{ github.actor }} is killing some mutants 👽👾🧌
 
 on: 
