@@ -16,11 +16,11 @@ jobs:
       - name: Run Stryker.NET
         uses: tom171296/run-stryker-net@v0.0.2
         with:
-          testProject: "BusinessLogic.Test/" # required
+          testProject: "./Services/Catalog/Domain.Tests/" # required
           breakAt: "75" # Optional
 
       - name: Upload report
         uses: actions/upload-artifact@v2
         with:
           name: html-report
-          path: ${{github.workspace}}/BusinessLogic.Test/StrykerOutput/**/**/*.html
+          path: ${{github.workspace}}/Domain.Tests/StrykerOutput/**/**/*.html
