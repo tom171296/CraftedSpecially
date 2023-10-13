@@ -1,0 +1,20 @@
+name: Catalog service CI/CD
+run-name: ${{ github.actor }} is killing some mutants 👽👾🧌
+
+on: [
+  workflow_dispatch
+]
+
+jobs:
+    mutation-test:
+        uses: actions/checkout@v3
+
+        uses: tom171296/run-stryker-net@main
+        with:
+            testProject: "BusinessLogic.Test/" # required
+            breakAt: "75" # Optional
+
+        uses: actions/upload-artifact@v3
+        with:
+            name: html-report
+            path: ${{github.workspace}}/BusinessLogic.Test/StrykerOutput/**/**/*.html
