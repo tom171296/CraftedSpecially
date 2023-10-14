@@ -14,9 +14,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Stryker.NET
-        uses: tom171296/run-stryker-net@v0.0.2
+        uses: stryker-mutator/github-action@11-support-strykerjs-to-be-ran-with-this-action
         with:
-          testProject: "./Services/Catalog/Domain.Tests/" # required
+          testProject: "./Services/Catalog/" # required
           breakAt: "75" # Optional
 
       - name: Upload report
