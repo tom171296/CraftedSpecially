@@ -19,5 +19,5 @@ To get started with continuous validation these steps need to be taken:
     - Run a loadtest under normal circumstances
     - Run a loadtest under chaos circumstances
 
-## TEst
-trigger
+## Test
+trigger +

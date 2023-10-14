@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Run Stryker.NET
+      - name: Run Stryker
         uses: stryker-mutator/github-action@11-support-strykerjs-to-be-ran-with-this-action
         with:
           strykerVersion: "test1234"
