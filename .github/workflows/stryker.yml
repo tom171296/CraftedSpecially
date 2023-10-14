@@ -16,7 +16,7 @@ jobs:
       - name: Run Stryker
         uses: stryker-mutator/github-action@11-support-strykerjs-to-be-ran-with-this-action
         with:
-          strykerVersion: "test1234"
+          strykerVersion: "Stryker.NET"
           testProject: "./Services/Catalog/" # required
           breakAt: "75" # Optional
 
