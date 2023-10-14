@@ -20,4 +20,4 @@ To get started with continuous validation these steps need to be taken:
     - Run a loadtest under chaos circumstances
 
 ## Mutation testing
-trigger +
+trigger 
