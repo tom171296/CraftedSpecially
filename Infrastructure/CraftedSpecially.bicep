@@ -1,7 +1,7 @@
 targetScope='subscription'
 
 // Parameters
-param projectLocation string = 'northeurope'
+param projectLocation string = 'francecentral'
 
 // Variables
 var projectName = 'CraftedSpecially'
