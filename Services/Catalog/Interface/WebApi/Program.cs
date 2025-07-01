@@ -1,3 +1,5 @@
+using OpenTelemetry.Metrics;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,6 +10,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddInfrastructure();
+
+// Add OpenTelemetry Metrics
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics =>
+    {
+        metrics
+            .AddAspNetCoreInstrumentation()
+            .AddMeter("CraftedSpecially.Catalog")
+            .AddConsoleExporter();
+    });
 
 var app = builder.Build();
 
