@@ -1,0 +1,66 @@
+# Pre-commit configuration for .NET projects
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+  # Standard pre-commit hooks for general file maintenance
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude_types: [markdown]
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ["--allow-multiple-documents"]
+      - id: check-json
+        exclude: '.vscode/.*\.json$'
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+
+  # Secret detection with gitleaks
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.0
+    hooks:
+      - id: gitleaks
+
+  # .NET specific hooks
+  - repo: local
+    hooks:
+      # .NET format hook - formats code according to .editorconfig
+      - id: dotnet-format
+        name: dotnet format
+        entry: bash -c 'cd Services/Catalog && dotnet format --verbosity minimal'
+        language: system
+        types: [c#]
+        pass_filenames: false
+
+      # .NET build hook - ensures code compiles
+      - id: dotnet-build
+        name: dotnet build
+        entry: bash -c 'cd Services/Catalog && dotnet build --configuration Release --no-restore'
+        language: system
+        files: \.(cs|csproj|sln)$
+        pass_filenames: false
+
+      # .NET test hook (optional - only if tests pass in current environment)
+      # Commented out due to .NET 7.0 runtime requirement in current environment
+      # - id: dotnet-test
+      #   name: dotnet test
+      #   entry: bash -c 'cd Services/Catalog && dotnet test --no-build --configuration Release'
+      #   language: system
+      #   files: \.(cs|csproj|sln)$
+      #   pass_filenames: false
+
+  # Additional code quality checks
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.3
+    hooks:
+      - id: prettier
+        types_or: [yaml, json, markdown]
+        exclude: ^(.*\.sln|.*\.csproj)$
+
+# Configuration
+default_install_hook_types: [pre-commit, prepare-commit-msg]
+default_stages: [pre-commit]
