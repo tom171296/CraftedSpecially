@@ -4,12 +4,12 @@ using CraftedSpecially.Domain.Common;
 namespace CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.DomainEvents;
 
 public record ProductRegisteredEvent(
-    string Name, 
+    string Name,
     string Description) : Event
 {
-    public static ProductRegisteredEvent FromCommand(RegisterProductCommand command) => 
+    public static ProductRegisteredEvent FromCommand(RegisterProductCommand command) =>
         new(
-            command.Name, 
+            command.Name,
             command.Description
         );
 }

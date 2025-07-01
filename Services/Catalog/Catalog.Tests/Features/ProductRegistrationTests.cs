@@ -24,7 +24,8 @@ public class ProductRegistrationTests
         var webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(
             builder =>
             {
-                builder.ConfigureTestServices(services => {
+                builder.ConfigureTestServices(services =>
+                {
                     services.AddTransient<IProductRepository>(provider => mockRepository.Object);
                 });
             }

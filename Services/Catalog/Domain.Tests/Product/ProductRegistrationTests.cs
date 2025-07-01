@@ -40,7 +40,7 @@ public class ProductTests
 
         // Act
         await sut.RegisterProductAsync(_command, productServiceMock.Object);
-        
+
         // Assert
         sut.IsValid.Should().BeFalse();
         sut.Name.Should().BeNullOrWhiteSpace();

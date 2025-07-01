@@ -10,36 +10,36 @@ namespace CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate;
 /// </summary>
 public class Product : AggregateRoot
 {
-    public string Name { get; private set;} = "";
-    public string Description { get; private set;} = "";
+    public string Name { get; private set; } = "";
+    public string Description { get; private set; } = "";
     public override string Id => throw new NotImplementedException();
 
     /// <summary>
     /// Register a new Product.
     /// </summary>
     public async Task RegisterProductAsync(RegisterProductCommand command, IProductService _productService)
-    {   
+    {
         await EnsureProductIsUniqueAsync(command.Name, _productService);
 
-        if(IsValid)
+        if (IsValid)
         {
-             // Handle command
+            // Handle command
             var productRegisteredEvent = ProductRegisteredEvent.FromCommand(command);
             ApplyDomainEvent(productRegisteredEvent);
         }
     }
 
     //===================================================================================
-    // This region contains the methods that handle domain-events. Handling domain-events 
-    // only changes the state of the aggregate (properties). Within these methods, it is 
+    // This region contains the methods that handle domain-events. Handling domain-events
+    // only changes the state of the aggregate (properties). Within these methods, it is
     // never allowed to introduce side-effects or call any external services. This is
-    // because this method is also called when replaying events when rehydrating the 
+    // because this method is also called when replaying events when rehydrating the
     // state of the aggregate from the event-store.
     //===================================================================================
 
     protected override void HandleDomainEvent(Event domainEvent)
     {
-        switch(domainEvent)
+        switch (domainEvent)
         {
             case ProductRegisteredEvent productRegisteredEvent:
                 Handle(productRegisteredEvent);
@@ -54,14 +54,14 @@ public class Product : AggregateRoot
     }
 
     //===================================================================================
-    // This region contains the methods that check business-rules. This can be rules that 
-    // apply to the state (properties) of the aggregate or to specific values passed in 
+    // This region contains the methods that check business-rules. This can be rules that
+    // apply to the state (properties) of the aggregate or to specific values passed in
     // as part of a command.
     //===================================================================================
 
     private async Task EnsureProductIsUniqueAsync(string name, IProductService productService)
     {
-        if(await productService.IsExistingProductAsync(name))
+        if (await productService.IsExistingProductAsync(name))
         {
             AddBusinessRuleViolation($"Product with name \"{name}\" already exists");
         }

@@ -1,20 +1,16 @@
 name: Catalog service CI/CD
 run-name: ${{ github.actor }} is building the catalog service 🚀
 
-on: [
-  workflow_dispatch
-]
+on: [workflow_dispatch]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-
   Build:
-
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: read
       packages: write
@@ -42,23 +38,22 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v3
-      
+
       - name: Azure login
         id: login
         uses: azure/login@v1.4.3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+
       - name: Set AKS context
         id: set-context
         uses: azure/aks-set-context@v3
         with:
-          resource-group: 'CraftedSpecially'
-          cluster-name: 'aks'
-      
+          resource-group: "CraftedSpecially"
+          cluster-name: "aks"
+
       - name: Setup kubectl
         id: install-kubectl
         uses: azure/setup-kubectl@v3
@@ -67,11 +62,11 @@ jobs:
         id: deploy
         uses: Azure/K8s-deploy@v4
         with:
-          namespace: 'crafted-specially'
+          namespace: "crafted-specially"
           manifests: |
             ./Services/Catalog/catalog-service.yml
-  
-  Release: 
+
+  Release:
     needs: Deployment
     runs-on: ubuntu-latest
     environment: Release
@@ -83,7 +78,7 @@ jobs:
         run: |
           echo "Running release..."
 
-  Load-test: 
+  Load-test:
     needs: Deployment
     runs-on: ubuntu-latest
     environment: Continuous-validation
@@ -96,14 +91,14 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
-      - name: 'Azure Load Testing'
+
+      - name: "Azure Load Testing"
         uses: azure/load-testing@v1.1.18
-        with: 
-          resourceGroup: 'CraftedSpecially'
-          loadTestResource: 'loadtest'
-          loadTestConfigFIle: './Services/Catalog/loadtest.yml'
-            
+        with:
+          resourceGroup: "CraftedSpecially"
+          loadTestResource: "loadtest"
+          loadTestConfigFIle: "./Services/Catalog/loadtest.yml"
+
   Continuous-validation:
     needs: Load-test
     runs-on: ubuntu-latest
@@ -125,11 +120,9 @@ jobs:
           inlineScript: |
             az rest --method post --uri https://management.azure.com/subscriptions/db92ebba-e37a-4453-b9ce-cb8b80a80469/resourceGroups/CraftedSpecially/providers/Microsoft.Chaos/experiments/aks-pod-chaos/start?api-version=2021-09-15-preview
 
-      - name: 'Run loadtest'
+      - name: "Run loadtest"
         uses: azure/load-testing@v1.1.18
-        with: 
-          resourceGroup: 'CraftedSpecially'
-          loadTestResource: 'loadtest'
-          loadTestConfigFIle: './Services/Catalog/loadtest.yml'
-
-      
+        with:
+          resourceGroup: "CraftedSpecially"
+          loadTestResource: "loadtest"
+          loadTestConfigFIle: "./Services/Catalog/loadtest.yml"

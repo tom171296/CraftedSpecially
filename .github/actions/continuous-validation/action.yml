@@ -1,37 +1,36 @@
-name: 'Deploy continuous validation'
-description: 'Deploy all the stuff you need for the continuous validation of your application'
+name: "Deploy continuous validation"
+description: "Deploy all the stuff you need for the continuous validation of your application"
 inputs:
   AZURE_CREDENTIALS:
-    description: 'Azure credentials'
+    description: "Azure credentials"
     required: true
   GITHUB_TOKEN:
-    description: 'Azure credentials'
+    description: "Azure credentials"
     required: true
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
+    - uses: azure/login@v1
+      with:
+        creds: ${{ inputs.AZURE_CREDENTIALS }}
 
-  - uses: azure/login@v1
-    with:
-      creds: ${{ inputs.AZURE_CREDENTIALS }}
+    - name: Set AKS context
+      id: set-context
+      uses: azure/aks-set-context@v3
+      with:
+        resource-group: "CraftedSpecially"
+        cluster-name: "aks"
 
-  - name: Set AKS context
-    id: set-context
-    uses: azure/aks-set-context@v3
-    with:
-      resource-group: 'CraftedSpecially' 
-      cluster-name: 'aks'
-  
-  - uses: azure/setup-helm@v3
-    with:
-      token: ${{ inputs.GITHUB_TOKEN }} # only needed if version is 'latest'
-    id: install-helm
-  
-  - name: Add Chaos Mesh repo
-    run: helm repo add chaos-mesh https://charts.chaos-mesh.org
-    shell: bash
+    - uses: azure/setup-helm@v3
+      with:
+        token: ${{ inputs.GITHUB_TOKEN }} # only needed if version is 'latest'
+      id: install-helm
 
-  - name: Install Chaos Mesh
-    run: helm install chaos-mesh chaos-mesh/chaos-mesh -n=chaos-testing --set chaosDaemon.runtime=containerd --set chaosDaemon.socketPath=/run/containerd/containerd.sock --version 2.5.1
-    shell: bash
+    - name: Add Chaos Mesh repo
+      run: helm repo add chaos-mesh https://charts.chaos-mesh.org
+      shell: bash
+
+    - name: Install Chaos Mesh
+      run: helm install chaos-mesh chaos-mesh/chaos-mesh -n=chaos-testing --set chaosDaemon.runtime=containerd --set chaosDaemon.socketPath=/run/containerd/containerd.sock --version 2.5.1
+      shell: bash
