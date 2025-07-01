@@ -17,8 +17,14 @@ builder.Services.AddOpenTelemetry()
     {
         metrics
             .AddAspNetCoreInstrumentation()
-            .AddMeter("CraftedSpecially.Catalog")
-            .AddConsoleExporter();
+            .AddMeter("CraftedSpecially.Catalog");
+            
+        // Add console exporter if configured
+        var consoleExporterEnabled = builder.Configuration.GetValue<bool>("OpenTelemetry:Metrics:ConsoleExporter:Enabled", true);
+        if (consoleExporterEnabled)
+        {
+            metrics.AddConsoleExporter();
+        }
     });
 
 var app = builder.Build();
