@@ -5,11 +5,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="microsoft.extensions.dependencyinjection" Version="7.0.0" />
+    <PackageReference Include="microsoft.extensions.dependencyinjection" Version="8.0.0" />
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

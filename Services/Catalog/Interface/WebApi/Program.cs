@@ -1,7 +1,9 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add service defaults & Aspire components.
+builder.AddServiceDefaults();
 
+// Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -23,5 +25,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapDefaultEndpoints();
 
 app.Run();
