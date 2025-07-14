@@ -5,7 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="microsoft.extensions.dependencyinjection" Version="7.0.0" />
+    <PackageReference Include="microsoft.extensions.dependencyinjection" Version="9.0.7" />
   </ItemGroup>
 
   <PropertyGroup>
