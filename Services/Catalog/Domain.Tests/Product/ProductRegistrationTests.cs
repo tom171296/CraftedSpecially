@@ -1,7 +1,6 @@
 using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate;
 using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.DomainEvents;
 using CraftedSpecially.Catalog.Domain.Tests.Mocks;
-using FluentAssertions;
 
 namespace CraftedSpecially.Catalog.Domain.Tests.Aggregates.ProductAggregate;
 
@@ -20,14 +19,17 @@ public class ProductTests
         await sut.RegisterProductAsync(_command, productServiceMock.Object);
 
         // Assert
-        sut.IsValid.Should().BeTrue();
-        sut.Name.Should().Be(_command.Name);
-        sut.Description.Should().Be(_command.Description);
+        Assert.IsTrue(sut.IsValid);
+        Assert.AreEqual(_command.Name, sut.Name);
+        Assert.AreEqual(_command.Description, sut.Description);
 
-        sut.GetDomainEvents().Should().ContainSingle(e => e is ProductRegisteredEvent)
-            .Which.Should().BeEquivalentTo(_command, options => options
-                    .ExcludingMissingMembers()
-                    .Excluding(e => e.Type));
+        var events = sut.GetDomainEvents().ToList();
+        Assert.AreEqual(1, events.Count(e => e is ProductRegisteredEvent));
+        var registeredEvent = events.OfType<ProductRegisteredEvent>().SingleOrDefault();
+        Assert.IsNotNull(registeredEvent);
+        // Compare properties except for excluded ones
+        Assert.AreEqual(_command.Name, registeredEvent.Name);
+        Assert.AreEqual(_command.Description, registeredEvent.Description);
     }
 
     [TestMethod]
@@ -42,10 +44,11 @@ public class ProductTests
         await sut.RegisterProductAsync(_command, productServiceMock.Object);
         
         // Assert
-        sut.IsValid.Should().BeFalse();
-        sut.Name.Should().BeNullOrWhiteSpace();
-        sut.Description.Should().BeNullOrWhiteSpace();
+        Assert.IsFalse(sut.IsValid);
+        Assert.IsTrue(string.IsNullOrWhiteSpace(sut.Name));
+        Assert.IsTrue(string.IsNullOrWhiteSpace(sut.Description));
 
-        sut.GetBusinessRuleViolations().Should().ContainSingle(v => v == $"Product with name \"test product name\" already exists");
+        var violations = sut.GetBusinessRuleViolations().ToList();
+        Assert.AreEqual(1, violations.Count(v => v == $"Product with name \"test product name\" already exists"));
     }
 }

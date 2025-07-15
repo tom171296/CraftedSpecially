@@ -2,7 +2,6 @@ using System.Text;
 using CraftedSpecially.Catalog.Application.Interfaces;
 using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate;
 using CraftedSpecially.Catalog.Domain.Aggregates.ProductAggregate.Commands;
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,7 +43,7 @@ public class ProductRegistrationTests
 
         // Assert
         // check if result is 200
-        result.IsSuccessStatusCode.Should().BeTrue();
-        mockRepository.Verify(x => x.AddAsync(It.Is<Product>(product => product.Name.Equals(command.Name) && product.Description.Equals(command.Description))), Times.Once);
+    Assert.IsTrue(result.IsSuccessStatusCode);
+    mockRepository.Verify(x => x.AddAsync(It.Is<Product>(product => product.Name.Equals(command.Name) && product.Description.Equals(command.Description))), Times.Once);
     }
 }
