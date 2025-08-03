@@ -31,6 +31,8 @@ The tehnology stack used in this project is as follows:
 - Cosmos DB
 - GitHub Actions for CI/CD
 
+All the tests that are written are using MSTest as the test framework.
+
 ## Testing the project
 
 - Always create unit-tests for components you introduce into the application.

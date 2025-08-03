@@ -1,4 +1,4 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var catalogService = builder.AddProject("Catalog", "../CraftedSpecially.Catalog/CraftedSpecially.Catalog.csproj");
+builder.AddProject("Catalog", "../Catalog/Catalog.Api/Catalog.Api.csproj");
 builder.Build().Run();
