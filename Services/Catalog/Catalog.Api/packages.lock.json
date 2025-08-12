@@ -1,16 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    "net10.0": {
-      "Microsoft.AspNetCore.OpenApi": {
-        "type": "Direct",
-        "requested": "[10.0.0-preview.6.25358.103, )",
-        "resolved": "10.0.0-preview.6.25358.103",
-        "contentHash": "5uo15hVq19KLdQelrKiuveC2YB487qv3IbjEDdsgujiFu9pPkEMr/4hjphXnDPBMQOQlWkC7IvACSWNXEze9Yw==",
-        "dependencies": {
-          "Microsoft.OpenApi": "2.0.0-preview.29"
-        }
-      },
+    "net9.0": {
       "Microsoft.Extensions.AmbientMetadata.Application": {
         "type": "Transitive",
         "resolved": "9.7.0",
@@ -90,11 +81,6 @@
         "dependencies": {
           "Microsoft.Extensions.Compliance.Abstractions": "9.7.0"
         }
-      },
-      "Microsoft.OpenApi": {
-        "type": "Transitive",
-        "resolved": "2.0.0-preview.29",
-        "contentHash": "VJGEzzxJY0YYQXTsdZFXTaCdlxQr/i34jF7rD9uJCvw/Rvnkz/7vkc5SC810h/6v/uGf57Y0WYBkcwdJFkHrJg=="
       },
       "OpenTelemetry": {
         "type": "Transitive",
@@ -194,7 +180,7 @@
         }
       }
     },
-    "net10.0/linux-x64": {},
-    "net10.0/win-x64": {}
+    "net9.0/linux-x64": {},
+    "net9.0/win-x64": {}
   }
 }
