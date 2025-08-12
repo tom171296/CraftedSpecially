@@ -11,17 +11,36 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  BUILD_CONFIGURATION: Release
 
 permissions: {}
 
 jobs:
 
-  build-test:
+  analysis:
+    name: Static/Dependency Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Trivy scan (repo)
+        run: |
+          docker run --rm \
+            -e TRIVY_DB_REPOSITORY=public.ecr.aws/aquasecurity/trivy-db,aquasec/trivy-db,ghcr.io/aquasecurity/ \
+            -v "${{ github.workspace }}:/src" \
+            aquasec/trivy@sha256:5b6e8c4f0c5a0b9f7e8f0d3a2a4c5d2f8e3e2e1f0a9b8c7d6e5f4c3b2a1f0e9d \
+            fs -f json --scanners vuln,secret,misconfig \
+            --exit-code 1 --severity HIGH,CRITICAL /src
+
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
-      security-events: write
+      packages: read
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -43,29 +62,6 @@ jobs:
       - name: Run unit tests
         run: dotnet test ./Services/Catalog/Catalog.Tests/Catalog.Tests.csproj --no-restore --no-build --logger trx
 
-      # - name: Initialize CodeQL
-      #   uses: github/codeql-action/init@v3
-      #   with:
-      #     languages: csharp
-
-      # - name: Perform CodeQL Analysis
-      #   uses: github/codeql-action/analyze@v3
-
-      # - name: Log in to the Container registry
-      #   uses: docker/login-action@v3
-      #   with:
-      #     registry: ${{ env.REGISTRY }}
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Build and push Docker image
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: ./Services/Catalog
-      #     file: ./Services/Catalog/dockerfile
-      #     push: true
-      #     tags: ghcr.io/tom171296/craftedspecially/catalog-service:latest
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -73,6 +69,38 @@ jobs:
           name: test-results
           path: '**/TestResults/*.trx'
 
-      - name: Fail if previous step failed
-        if: failure()
-        run: exit 1
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-api-build-output
+          path: |
+            **/bin/${{ env.BUILD_CONFIGURATION }}/
+
+  sign_and_provenance: 
+    name: Sign & Attest
+    runs-on: ubuntu-latest
+    needs: build
+    
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: dist
+
+      - name: Generate provenance
+        uses: slsa-framework/slsa-github-generator/actions/generator@v2.1.0
+        with:
+          artifact_path: dist
+          provenance_name: provenance.intoto.jsonl
