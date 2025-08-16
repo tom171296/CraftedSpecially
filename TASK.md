@@ -1,14 +1,31 @@
 # Feature: List Available Brews
 
 As a CraftedSpecially enjoyer,
-I want to see what types of brews I can order
-So that I can choose the one I like best.
+I want to have a pipeline
+so that I can build the catalog service with the best security best practices.
 
 ## Examples
 
-- User visits the catalog page and sees a list of all available brews.
-- Edge case: Catalog is empty, user sees a message indicating no brews are available.
-- Failure case: Catalog service is unavailable, user sees an error message.
+- A GitHub Actions workflow is created for the Catalog service.
+- The workflow includes steps for:
+  - Restoring dependencies
+  - Building the project
+  - Running unit tests (using MSTest)
+  - Performing static code analysis and security scanning (e.g., CodeQL)
+  - Checking for vulnerable dependencies (e.g., using Dependabot or dotnet list package --vulnerable)
+  - Publishing build artifacts
+  - Deploying to Azure Kubernetes Service (AKS) using secure credentials
+- Secrets and credentials are stored securely using GitHub Secrets.
+- The workflow uses the principle of least privilege for permissions.
+- The workflow is configured to prevent secrets from leaking in logs.
+- The workflow is triggered on pull requests and pushes to main branches.
+- The workflow fails if any security or test step fails.
+
+## Edge Cases
+
+- Edge case: Build or test fails—pipeline stops and notifies maintainers.
+- Edge case: Security scan finds vulnerabilities—pipeline fails and reports details.
+- Failure case: Deployment to AKS fails—pipeline stops and provides error output.
 
 ## Documentation
 
