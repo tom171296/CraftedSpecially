@@ -1,135 +1,142 @@
+
 name: Catalog service CI/CD
 run-name: ${{ github.actor }} is building the catalog service 🚀
 
-on: [
-  workflow_dispatch
-]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: crafted-specially/catalog-api
+  BUILD_CONFIGURATION: Release
+
+permissions: {}
 
 jobs:
 
-  Build:
-
+  analysis:
+    name: Static/Dependency Scan
     runs-on: ubuntu-latest
-    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Trivy scan (repo)
+        run: |
+          docker run --rm \
+            -e TRIVY_DB_REPOSITORY=public.ecr.aws/aquasecurity/trivy-db,aquasec/trivy-db,ghcr.io/aquasecurity/ \
+            -v "${{ github.workspace }}:/src" \
+            aquasec/trivy:latest \
+            fs -f json --scanners vuln,secret,misconfig \
+            --exit-code 1 --severity HIGH,CRITICAL /src
+
+  build:
+    runs-on: ubuntu-latest
+    needs: analysis
     permissions:
       contents: read
-      packages: write
+      packages: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore dependencies
+        run: dotnet restore ./Services/Catalog/Catalog.Api/Catalog.Api.csproj --locked-mode
+
+      - name: Check for vulnerable dependencies
+        run: dotnet list ./Services/Catalog/Catalog.Api/Catalog.Api.csproj package --vulnerable
+
+      - name: Build
+        run: dotnet build ./Services/Catalog/Catalog.Api/Catalog.Api.csproj --no-restore --configuration Release
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-api-build-output
+          path: |
+            **/bin/${{ env.BUILD_CONFIGURATION }}/
+
+      # Docker build and push steps
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        id: build_and_push
+        uses: docker/build-push-action@v3
         with:
-          context: .
-          file: ./Services/Catalog/dockerfile
+          context: ./Services
+          file: ./Catalog/Dockerfile
           push: true
-          tags: ghcr.io/tom171296/craftedspecially/catalog-service:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-  Deployment:
-    needs: Build
+      - name: Export image digest
+        id: export_digest
+        run: echo "digest=${{ steps.build_and_push.outputs.digest }}" >> "$GITHUB_OUTPUT"
+    
+    outputs:
+      digest: ${{ steps.export_digest.outputs.digest }}
+
+  sign_and_provenance:
+    name: Sign & Attest
     runs-on: ubuntu-latest
-    steps:
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      
-      - name: Azure login
-        id: login
-        uses: azure/login@v1.4.3
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
-      - name: Set AKS context
-        id: set-context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: 'CraftedSpecially'
-          cluster-name: 'aks'
-      
-      - name: Setup kubectl
-        id: install-kubectl
-        uses: azure/setup-kubectl@v3
-
-      - name: Deploy to AKS
-        id: deploy
-        uses: Azure/K8s-deploy@v4
-        with:
-          namespace: 'crafted-specially'
-          manifests: |
-            ./Services/Catalog/catalog-service.yml
-  
-  Release: 
-    needs: Deployment
-    runs-on: ubuntu-latest
-    environment: Release
+    needs: build
+    
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+      attestations: write
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: catalog-api-build-output
+          path: dist
 
-      - name: Run release
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ needs.build.outputs.digest }}
+          push-to-registry: true
+
+      - name: Install Cosign
         run: |
-          echo "Running release..."
+          COSIGN_VERSION=v2.2.4
+          curl -sL https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64 > /usr/local/bin/cosign
+          chmod +x /usr/local/bin/cosign
 
-  Load-test: 
-    needs: Deployment
-    runs-on: ubuntu-latest
-    environment: Continuous-validation
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
-      - name: 'Azure Load Testing'
-        uses: azure/load-testing@v1.1.18
-        with: 
-          resourceGroup: 'CraftedSpecially'
-          loadTestResource: 'loadtest'
-          loadTestConfigFIle: './Services/Catalog/loadtest.yml'
-            
-  Continuous-validation:
-    needs: Load-test
-    runs-on: ubuntu-latest
-    environment: Continuous-validation
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Start chaos experiment
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.30.0
-          inlineScript: |
-            az rest --method post --uri https://management.azure.com/subscriptions/db92ebba-e37a-4453-b9ce-cb8b80a80469/resourceGroups/CraftedSpecially/providers/Microsoft.Chaos/experiments/aks-pod-chaos/start?api-version=2021-09-15-preview
-
-      - name: 'Run loadtest'
-        uses: azure/load-testing@v1.1.18
-        with: 
-          resourceGroup: 'CraftedSpecially'
-          loadTestResource: 'loadtest'
-          loadTestConfigFIle: './Services/Catalog/loadtest.yml'
-
-      
+      - name: Cosign sign artifacts
+        run: |
+          for f in $(find dist -type f); do
+            cosign sign-blob --yes --oidc-issuer https://token.actions.githubusercontent.com --output-signature "$f.sig" "$f"
+          done

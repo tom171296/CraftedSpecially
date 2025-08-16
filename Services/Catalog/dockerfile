@@ -1,15 +1,14 @@
 # Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-WORKDIR /src
-COPY ["Catalog.Api/Catalog.Api.csproj", "Catalog.Api/"]
-COPY ["Catalog.Application/Catalog.Application.csproj", "Catalog.Application/"]
-COPY ["Catalog.Api/", "Catalog.Api/"]
-COPY ["Catalog.Application/", "Catalog.Application/"]
-RUN dotnet restore "Catalog.Api/Catalog.Api.csproj"
-RUN dotnet publish "Catalog.Api/Catalog.Api.csproj" -c Release -o /app/publish --no-restore
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+COPY ["./Directory.Build.props", "."]
+COPY ["./Catalog/Catalog.Api/", "./Services/Catalog/Catalog.Api/"]
+COPY ["./Catalog/Catalog.Application", "./Services/Catalog/Catalog.Application/"]
+COPY ["./CraftedSpecially.ServiceDefaults/", "./Services/CraftedSpecially.ServiceDefaults/"]
+RUN dotnet restore "./Catalog/Catalog.Api/Catalog.Api.csproj" --locked-mode
+RUN dotnet publish "./Catalog/Catalog.Api/Catalog.Api.csproj" -c Release -o /app/publish --no-restore
 
 # Stage 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 
