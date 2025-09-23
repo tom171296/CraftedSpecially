@@ -12,13 +12,18 @@ Follow-up TODOs: TODO(RATIFICATION_DATE): Original ratification date unknown, pl
 # CraftedSpecially Constitution
 
 
+
 ## Core Principles
 
 ### I. Architecture-First (ARC42)
 All features and services MUST be documented in the Docs/Architecture folder using the ARC42 standard. All architecture diagrams MUST be created with Mermaid. Documentation MUST be kept up to date with implementation.
 Rationale: Ensures clarity, maintainability, and onboarding for all contributors.
 
-### II. Test-Driven Development (TDD)
+### II. Feature Slices (API & Implementation)
+All APIs, services, and supporting code MUST be organized and implemented as feature slices. Each feature slice encapsulates all related logic, data, and endpoints for a specific business capability, minimizing cross-feature dependencies. Shared code is extracted only when justified by repeated use across multiple slices.
+Rationale: Promotes modularity, scalability, and clear ownership of features.
+
+### III. Test-Driven Development (TDD)
 All new code MUST be developed using TDD. Tests MUST be written and fail before implementation. Red-Green-Refactor cycle is strictly enforced. No code is merged without passing tests.
 Rationale: Guarantees reliability and enables safe refactoring.
 
@@ -31,6 +36,7 @@ All services MUST provide structured logging, metrics, and traceability for debu
 Rationale: Enables rapid diagnosis and compliance.
 
 
+
 ## Additional Constraints
 
 - All architecture documentation MUST follow ARC42 structure.
@@ -38,6 +44,7 @@ Rationale: Enables rapid diagnosis and compliance.
 - Technology stack decisions MUST be documented and justified in architecture docs.
 - Security and compliance requirements MUST be explicitly listed and reviewed for every release.
 - Performance standards MUST be defined and validated for each service.
+- All APIs and implementations MUST adhere to the feature slice architecture, with clear boundaries and minimal cross-slice dependencies.
 
 
 ## Development Workflow
@@ -61,5 +68,5 @@ Rationale: Enables rapid diagnosis and compliance.
 - Compliance is reviewed at every major release and before merging significant changes.
 - For runtime development guidance, refer to Docs/Architecture and README.md.
 
-**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): Original ratification date unknown | **Last Amended**: 2025-09-23
-<!-- Version: 1.0.0 | Ratified: TODO(RATIFICATION_DATE): Original ratification date unknown | Last Amended: 2025-09-23 -->
+**Version**: 1.1.0 | **Ratified**: TODO(RATIFICATION_DATE): Original ratification date unknown | **Last Amended**: 2025-09-23
+<!-- Version: 1.1.0 | Ratified: TODO(RATIFICATION_DATE): Original ratification date unknown | Last Amended: 2025-09-23 -->
