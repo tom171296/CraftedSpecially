@@ -1,12 +1,7 @@
 targetScope='subscription'
 
-// Parameters
-param projectLocation string = 'eastus'
-
-// Variables
-var projectName = 'CraftedSpecially'
-
-// Infrastructure Resources
+param projectLocation string
+param projectName string
 
 // Creating resource group
 resource rg 'Microsoft.Resources/resourceGroups@2021-01-01' = {
@@ -14,30 +9,26 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-01-01' = {
   location: projectLocation
 }
 
-// Runtime infrastructure
-module runtimeInfrastructure 'runtime-infrastructure/runtime-infrastructure.bicep' = {
-  name: 'RuntimeInfrastructure'
-  scope: rg
-  params: {
-    location: rg.location
+// Service group
+resource service_group 'Microsoft.Management/serviceGroups@2024-02-01-preview' = {
+  scope: tenant()
+  kind: 'ServiceGroup'
+  name: '${projectName}-servicegroup'
+  properties: {
+    displayName: '${projectName} Service Group'
   }
 }
 
-// Application infrastructure
-module applicationInfrastructure 'application-infrastructure/application-infrastructure.bicep' = {
-  name: 'ApplicationInfrastructure'
-  scope: rg
-  params: {
-    location: rg.location
+resource health_model 'Microsoft.CloudHealth/healthmodels@2025-05-01-preview' = {
+  location: projectLocation
+  name: '${projectName}-healthmodel'
+  identity: {
+    type: 'SystemAssigned'
   }
-}
-
-// Continous validation
-module continuousValidation 'management-governance/continuous-validation/ContinuousValidation.bicep' = {
-  name: 'ContinuousValidation'
-  scope: rg
-  params: {
-    location: rg.location
-    existingAKsName: runtimeInfrastructure.outputs.aksClusterName
+  properties: {
+    discovery: {
+      addRecommendedSignals: true
+      scope: service_group.id
+    }
   }
 }
