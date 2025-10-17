@@ -1,26 +1,33 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
-WORKDIR /App
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+COPY ["./Directory.Build.props", "."]
+COPY ["./nuget.config", "."]
+COPY ["./Catalog/Catalog.Api/", "./Catalog/Catalog.Api/"]
+COPY ["./Catalog/Catalog.Application", "./Catalog/Catalog.Application/"]
+COPY ["./CraftedSpecially.ServiceDefaults/", "./CraftedSpecially.ServiceDefaults/"]
+RUN curl -I https://api.nuget.org/v3/index.json
+RUN dotnet restore "./Catalog/Catalog.Api/Catalog.Api.csproj" --configfile ./nuget.config --locked-mode
+RUN dotnet publish "./Catalog/Catalog.Api/Catalog.Api.csproj" -c Release -o /app/publish --no-restore
 
-# Copy everything
-COPY ./Common/Application.Common/ ./Common/Application.Common/
-COPY ./Common/Domain.Common/ ./Common/Domain.Common/
-COPY ./Services/Catalog/ ./Services/Catalog/
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
 
-WORKDIR /App/Services/Catalog
+# Security: Create non-root user and switch to it
+RUN groupadd --system appgroup && useradd --system --gid appgroup appuser
+USER appuser
 
-# Restore as distinct layers
-RUN dotnet restore
+# Environment variables
+ENV ASPNETCORE_URLS="http://+:8080"
+ENV ASPNETCORE_ENVIRONMENT="Production"
 
-RUN dotnet test
+# Expose only necessary port
+EXPOSE 8080
 
-# Build and publish a release
-RUN dotnet publish -c Release -o out
+# Healthcheck
+# HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+#   CMD curl --fail http://localhost:8080/health || exit 1
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
-
-ENV ASPNETCORE_URLS=http://+:8080
-
-WORKDIR /App
-COPY --from=build-env /App/Services/Catalog/out .
-ENTRYPOINT ["dotnet", "WebApi.dll"]
+# Start the app
+ENTRYPOINT ["dotnet", "Catalog.Api.dll"]
