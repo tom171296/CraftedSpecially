@@ -1,6 +1,5 @@
-
 name: Catalog service CI/CD
-run-name: ${{ github.actor }} is building the catalog service 🚀
+run-name: ${{ github.actor }} is running the catalog service 🚀
 
 on:
   push:
@@ -30,7 +29,7 @@ jobs:
         run: |
           docker run --rm \
             -e TRIVY_DB_REPOSITORY=public.ecr.aws/aquasecurity/trivy-db,aquasec/trivy-db,ghcr.io/aquasecurity/ \
-            -v "${{ github.workspace }}:/src" \
+            -v "${{ github.workspace }}/Services/Catalog:/src" \
             aquasec/trivy:latest \
             fs -f json --scanners vuln,secret,misconfig \
             --exit-code 1 --severity HIGH,CRITICAL /src
@@ -153,3 +152,41 @@ jobs:
       #     for f in $(find dist -type f); do
       #       cosign sign-blob --yes --oidc-issuer https://token.actions.githubusercontent.com --output-signature "$f.sig" "$f"
       #     done
+  
+  deployment: 
+    needs: sign_and_provenance
+    name: Deploy to Azure
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+      actions: read
+
+    environment: Deployment
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+      - uses: azure/setup-kubectl@v4
+
+      - uses: azure/aks-set-context@v4
+        with:
+          cluster-name: CraftedSpecially-aks
+          resource-group: CraftedSpecially
+
+      - uses: Azure/k8s-deploy@v5
+        with:
+          namespace: 'crafted-specially'
+          manifests: |
+              ./Services/Catalog/deployment.yml
+      

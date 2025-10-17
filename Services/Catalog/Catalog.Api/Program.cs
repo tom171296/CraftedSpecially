@@ -1,3 +1,4 @@
+using Catalog.Api.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,5 +17,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapBrewsEndpoints();
 
 app.Run();

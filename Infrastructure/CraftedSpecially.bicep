@@ -1,12 +1,7 @@
 targetScope='subscription'
 
-// Parameters
-param projectLocation string = 'eastus'
-
-// Variables
-var projectName = 'CraftedSpecially'
-
-// Infrastructure Resources
+param projectLocation string = 'canadacentral'
+param projectName string = 'CraftedSpecially'
 
 // Creating resource group
 resource rg 'Microsoft.Resources/resourceGroups@2021-01-01' = {
@@ -14,30 +9,40 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-01-01' = {
   location: projectLocation
 }
 
-// Runtime infrastructure
-module runtimeInfrastructure 'runtime-infrastructure/runtime-infrastructure.bicep' = {
-  name: 'RuntimeInfrastructure'
-  scope: rg
-  params: {
-    location: rg.location
+// Service group
+resource root_service_group 'Microsoft.Management/serviceGroups@2024-02-01-preview' existing = {
+  scope: tenant()
+  name: 'health_model_test_tomb' // Root service group ID
+}
+
+resource service_group 'Microsoft.Management/serviceGroups@2024-02-01-preview' = {
+  scope: tenant()
+  kind: 'ServiceGroup'
+  name: '${projectName}-servicegroup'
+  properties: {
+    displayName: '${projectName} Service Group'
+    parent: {
+      resourceId: root_service_group.id
+    }
   }
 }
 
-// Application infrastructure
-module applicationInfrastructure 'application-infrastructure/application-infrastructure.bicep' = {
-  name: 'ApplicationInfrastructure'
+module management_governance './modules/management_governance/management_governance.bicep' = {
+  name: 'deployManagementGovernance'
   scope: rg
   params: {
-    location: rg.location
+    location: projectLocation
+    projectName: projectName
   }
 }
 
-// Continous validation
-module continuousValidation 'management-governance/continuous-validation/ContinuousValidation.bicep' = {
-  name: 'ContinuousValidation'
+module runtime_infrastructure './modules/runtime_infrastructure/runtime_infrastructure.bicep' = {
+  name: 'deployRuntimeInfrastructure'
   scope: rg
   params: {
-    location: rg.location
-    existingAKsName: runtimeInfrastructure.outputs.aksClusterName
+    projectLocation: projectLocation
+    projectName: projectName
+    service_groupId: service_group.id
+    containerRegistryId: management_governance.outputs.containerRegistryId
   }
 }
