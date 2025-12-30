@@ -127,7 +127,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate artifact attestation
+      - name: Generate build provenance
+        id: generate_provenance
         uses: actions/attest-build-provenance@v3.1.0
         with:
           subject-name: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
@@ -142,6 +143,12 @@ jobs:
           subject-digest: ${{ needs.build.outputs.digest }}
           push-to-registry: true
           sbom-path: ./buildOutput/_manifest/spdx_2.2/manifest.spdx.json
+
+      - name: Upload attestation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-api-provenance
+          path: ${{steps.generate_provenance.outputs.bundle-path}}
   
   # deployment: 
   #   needs: sign_and_provenance
