@@ -111,6 +111,7 @@ jobs:
       contents: read
       packages: write
       attestations: write
+      artifact-metadata: write
     
     steps:
       - name: Download build artifacts
@@ -127,11 +128,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v3.1.0
         with:
           subject-name: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ needs.build.outputs.digest }}
           push-to-registry: true
+          create-storage-record: true
 
       - name: Generate SBOM attestation
         uses: actions/attest-sbom@v2
@@ -140,18 +142,6 @@ jobs:
           subject-digest: ${{ needs.build.outputs.digest }}
           push-to-registry: true
           sbom-path: ./buildOutput/_manifest/spdx_2.2/manifest.spdx.json
-
-      # - name: Install Cosign
-      #   run: |
-      #     COSIGN_VERSION=v2.2.4
-      #     curl -sL https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64 > /usr/local/bin/cosign
-      #     chmod +x /usr/local/bin/cosign
-
-      # - name: Cosign sign artifacts
-      #   run: |
-      #     for f in $(find dist -type f); do
-      #       cosign sign-blob --yes --oidc-issuer https://token.actions.githubusercontent.com --output-signature "$f.sig" "$f"
-      #     done
   
   # deployment: 
   #   needs: sign_and_provenance
