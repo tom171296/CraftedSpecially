@@ -127,7 +127,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v3
         with:
           subject-name: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ needs.build.outputs.digest }}
@@ -153,40 +153,40 @@ jobs:
       #       cosign sign-blob --yes --oidc-issuer https://token.actions.githubusercontent.com --output-signature "$f.sig" "$f"
       #     done
   
-  deployment: 
-    needs: sign_and_provenance
-    name: Deploy to Azure
-    runs-on: ubuntu-latest
+  # deployment: 
+  #   needs: sign_and_provenance
+  #   name: Deploy to Azure
+  #   runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-      id-token: write
-      actions: read
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #     actions: read
 
-    environment: Deployment
+  #   environment: Deployment
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v5
+  #       with:
+  #         persist-credentials: false
+  #     - name: Azure Login
+  #       uses: azure/login@v1
+  #       with:
+  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
-      - uses: azure/setup-kubectl@v4
+  #     - uses: azure/setup-kubectl@v4
 
-      - uses: azure/aks-set-context@v4
-        with:
-          cluster-name: CraftedSpecially-aks
-          resource-group: CraftedSpecially
+  #     - uses: azure/aks-set-context@v4
+  #       with:
+  #         cluster-name: CraftedSpecially-aks
+  #         resource-group: CraftedSpecially
 
-      - uses: Azure/k8s-deploy@v5
-        with:
-          namespace: 'crafted-specially'
-          manifests: |
-              ./Services/Catalog/deployment.yml
+  #     - uses: Azure/k8s-deploy@v5
+  #       with:
+  #         namespace: 'crafted-specially'
+  #         manifests: |
+  #             ./Services/Catalog/deployment.yml
       
