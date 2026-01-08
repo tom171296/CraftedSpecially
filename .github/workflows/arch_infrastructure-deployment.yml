@@ -48,7 +48,7 @@ jobs:
     
     - name: Setup kubectl
       id: install-kubectl
-      uses: azure/setup-kubectl@v3
+      uses: azure/setup-kubectl@v4
     
     - name: Deploy to AKS
       id: deploy-aks
