@@ -6,6 +6,10 @@
 version: 2
 updates:
   - package-ecosystem: "nuget" # See documentation for possible values
-    directory: "/Services/Catalog/" # Location of package manifests
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/" # Workflows are stored in .github/workflows
     schedule:
       interval: "daily"
