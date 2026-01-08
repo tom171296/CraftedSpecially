@@ -42,7 +42,7 @@ module runtime_infrastructure './modules/runtime_infrastructure/runtime_infrastr
   params: {
     projectLocation: projectLocation
     projectName: projectName
-    service_groupId: service_group.id
-    containerRegistryId: management_governance.outputs.containerRegistryId
+    containerRegistryName: management_governance.outputs.containerRegistryName
+    serviceGroupName: service_group.name
   }
 }

@@ -22,9 +22,6 @@ resource aks 'Microsoft.ContainerService/managedClusters@2025-07-02-preview' = {
     tier: 'Standard'
   }
   properties: {
-    bootstrapProfile: {
-      containerRegistryId: existingACR.id
-    }
     dnsPrefix: 'dns-prefix'
     agentPoolProfiles: [
       {
@@ -52,12 +49,12 @@ resource aks 'Microsoft.ContainerService/managedClusters@2025-07-02-preview' = {
 }
 
 // Role assignment for AKS to pull images from ACR
-resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(aks.id, existingACR.id, 'acrpull-role-assignment')
   scope: existingACR
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d') // AcrPull role
-    principalId: aks.identity.principalId
+    principalId: aks.properties.identityProfile.kubeletidentity.objectId
     principalType: 'ServicePrincipal'
   }
 } 

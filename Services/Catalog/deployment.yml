@@ -35,7 +35,7 @@ spec:
       - name: catalog
         image: ghcr.io/craftedspecially/catalog-service:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8080  # Changed from 80 to match ASPNETCORE_URLS=http://+:8080
         securityContext:
           runAsNonRoot: true        # Can inherit but explicit is fine
           runAsUser: 1000
@@ -58,8 +58,8 @@ spec:
     app: catalog
   ports:
   - protocol: TCP
-    port: 80
-    targetPort: 80
+    port: 80          # External stable port
+    targetPort: 8080  # Changed from 80 to match container's actual listener
 
 ---
 

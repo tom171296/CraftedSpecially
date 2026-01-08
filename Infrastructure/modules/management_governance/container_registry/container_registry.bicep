@@ -12,12 +12,6 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2025-05-01-pr
   properties: {
     adminUserEnabled: false
     anonymousPullEnabled: false
-    
-    policies: {
-      quarantinePolicy: {
-        status: 'enabled'
-      }
-    }
   }
 }
 

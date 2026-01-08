@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ServiceDiscovery;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -56,13 +55,23 @@ public static class Extensions
         builder.Services.AddOpenTelemetry()
             .WithMetrics(metrics =>
             {
-                metrics.AddAspNetCoreInstrumentation()
+                metrics
+                    .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddRuntimeInstrumentation();
+                    .AddRuntimeInstrumentation()
+                    // Register the custom Meter used in BrewOrderInstrumentation so counters are exported
+                    .AddMeter("Catalog.Api.CheckoutMetrics");
             })
             .WithTracing(tracing =>
             {
-                tracing.AddSource(builder.Environment.ApplicationName)
+                tracing
+                    // Register application default ActivitySource (if used elsewhere)
+                    .AddSource(builder.Environment.ApplicationName)
+                    // Register the ActivitySource declared in BrewOrderInstrumentation
+                    .AddSource("Catalog.Api.Checkout") // TODO: Fix to work properly instead of hardcoding
+                    // NOTE: The previous configuration attempted to add sources named after activity/span names
+                    // (PaymentService.ChargeCard / InventoryService.ReserveStock). Activity names are not sources;
+                    // they are operation names emitted by the ActivitySource above, so adding them had no effect.
                     .AddAspNetCoreInstrumentation(tracing =>
                         // Exclude health check requests from tracing
                         tracing.Filter = context =>
@@ -91,8 +100,9 @@ public static class Extensions
         // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
         if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
         {
-           builder.Services.AddOpenTelemetry()
-              .UseAzureMonitor();
+           builder.Services
+            .AddOpenTelemetry()
+            .UseAzureMonitor();
         }
 
         return builder;

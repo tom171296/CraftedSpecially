@@ -11,5 +11,13 @@ resource configStore 'Microsoft.AppConfiguration/configurationStores@2025-02-01-
   }
 }
 
+// resource svcMember 'Microsoft.Relationships/serviceGroupMember@2023-09-01-preview' = {
+//   name: '${appConfigName}-sgm'
+//   properties: {
+//     targetId: configStore.id
+//     targetTenant: serviceGroupId
+//   }
+// }
+
 output appConfigEndpoint string = configStore.properties.endpoint
 output appConfigId string = configStore.id

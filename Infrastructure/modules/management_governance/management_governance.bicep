@@ -12,4 +12,4 @@ module container_registry './container_registry/container_registry.bicep' = {
   }
 }
 
-output containerRegistryId string = container_registry.outputs.containerRegistryId
+output containerRegistryName string = container_registry.outputs.containerRegistryName
