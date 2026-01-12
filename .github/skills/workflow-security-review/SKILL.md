@@ -1,12 +1,19 @@
 ---
 name: Workflow Security Review
 description: Guide for reviewing GitHub Actions for security vulnerabilities.
-allowed-tools: github:get_ref, github:list_tags, github:get_repository
+allowed-tools: mcp_github-mcp_get_ref, mcp_github-mcp_list_tags, mcp_github-mcp_get_repository
 ---
 
 # Workflow Security Review
 
 This skill analyzes GitHub Actions workflows for security vulnerabilities and misconfigurations that could lead to code injection, privilege escalation, or credential exposure.
+
+## Available MCP Tools
+| Tool | Purpose |
+|------|---------|
+| `mcp_github-mcp_get_ref` | Retrieves a Git reference, useful for verifying action SHAs |
+| `mcp_github-mcp_list_tags` | Lists all tags for a given repository, useful for identifying action versions |
+| `mcp_github-mcp_get_repository` | Fetches repository details, useful for context on workflows |
 
 ## When to use this skill
 

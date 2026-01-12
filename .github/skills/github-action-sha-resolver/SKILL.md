@@ -7,6 +7,12 @@ allowed-tools: mcp_github-mcp_list_tags, mcp_github-mcp_get_tag
 # GitHub Action SHA Resolver
 This skill provides a secure workflow to identify the exact commit SHA associated with a specific version of a GitHub Action.
 
+## Available MCP Tools
+| Tool | Purpose |
+|------|---------|
+| `mcp_github-mcp_list_tags` | Lists all tags for a given repository |
+| `mcp_github-mcp_get_tag` | Retrieves detailed information about a specific tag
+
 ## Workflow Logic
 When a user asks for the SHA of an action version (e.g., `actions/checkout@v4`):
 
