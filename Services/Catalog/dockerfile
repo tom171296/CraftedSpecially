@@ -1,16 +1,15 @@
 # Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 COPY ["./Directory.Build.props", "."]
 COPY ["./nuget.config", "."]
 COPY ["./Catalog/Catalog.Api/", "./Catalog/Catalog.Api/"]
 COPY ["./Catalog/Catalog.Application", "./Catalog/Catalog.Application/"]
 COPY ["./CraftedSpecially.ServiceDefaults/", "./CraftedSpecially.ServiceDefaults/"]
-RUN curl -I https://api.nuget.org/v3/index.json
 RUN dotnet restore "./Catalog/Catalog.Api/Catalog.Api.csproj" --configfile ./nuget.config --locked-mode
 RUN dotnet publish "./Catalog/Catalog.Api/Catalog.Api.csproj" -c Release -o /app/publish --no-restore
 
 # Stage 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 
