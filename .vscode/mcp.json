@@ -12,6 +12,10 @@
         "--prerelease",
         "--yes"
       ]
+    },
+    "microsoft.docs.mcp": {
+      "type": "http",
+      "url": "https://learn.microsoft.com/api/mcp"
     }
   }
 }

@@ -1,6 +1,6 @@
 ---
-name: Nuget package implementation
-description: Describes how to get usage instructions for a Nuget package.
+name: nuget-package-implementation
+description: Describes how to get usage instructions adding or implementing a Nuget package in a project, including viewing best practices and examples from the package's README file. Use this skill when you need to understand how to use a Nuget package effectively in your projects.
 allowed-tools: mcp_nuget_get-package-readme, mcp_nuget_get-latest-package-version
 ---
 
