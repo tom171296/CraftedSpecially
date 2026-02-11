@@ -1,0 +1,5 @@
+add the azure devops mcp server to this solution
+
+---
+
+commit this
