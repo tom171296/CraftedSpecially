@@ -1,4 +1,11 @@
 {
+  "inputs": [
+    {
+      "id": "azdo-org",
+      "type": "promptString",
+      "description": "Azure DevOps Organization name"
+    }
+  ],
   "servers": {
     "github-mcp": {
       "type": "http",
@@ -16,6 +23,16 @@
     "microsoft.docs.mcp": {
       "type": "http",
       "url": "https://learn.microsoft.com/api/mcp"
+    },
+    "azure-devops": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@azure-devops/mcp",
+        "--org",
+        "${input:azdo-org}"
+      ]
     }
   }
 }
