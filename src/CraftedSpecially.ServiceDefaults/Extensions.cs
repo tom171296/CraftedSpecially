@@ -59,19 +59,13 @@ public static class Extensions
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()
-                    // Register the custom Meter used in BrewOrderInstrumentation so counters are exported
-                    .AddMeter("Catalog.Api.CheckoutMetrics");
+                    .AddMeter("Catalog");
             })
             .WithTracing(tracing =>
             {
                 tracing
-                    // Register application default ActivitySource (if used elsewhere)
                     .AddSource(builder.Environment.ApplicationName)
-                    // Register the ActivitySource declared in BrewOrderInstrumentation
-                    .AddSource("Catalog.Api.Checkout") // TODO: Fix to work properly instead of hardcoding
-                    // NOTE: The previous configuration attempted to add sources named after activity/span names
-                    // (PaymentService.ChargeCard / InventoryService.ReserveStock). Activity names are not sources;
-                    // they are operation names emitted by the ActivitySource above, so adding them had no effect.
+                    .AddSource("Catalog")
                     .AddAspNetCoreInstrumentation(tracing =>
                         // Exclude health check requests from tracing
                         tracing.Filter = context =>

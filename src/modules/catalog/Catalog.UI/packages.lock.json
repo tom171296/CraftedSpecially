@@ -1,7 +1,23 @@
 {
   "version": 1,
   "dependencies": {
-    "net10.0": {},
+    "net10.0": {
+      "catalog.application": {
+        "type": "Project",
+        "dependencies": {
+          "Catalog.Domain": "[1.0.0, )"
+        }
+      },
+      "catalog.domain": {
+        "type": "Project"
+      },
+      "catalog.infrastructure": {
+        "type": "Project",
+        "dependencies": {
+          "Catalog.Application": "[1.0.0, )"
+        }
+      }
+    },
     "net10.0/linux-x64": {},
     "net10.0/win-x64": {}
   }
