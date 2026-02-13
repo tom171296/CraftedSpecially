@@ -8,6 +8,8 @@ builder.Services.AddOpenApi();
 
 builder.AddServiceDefaults();
 
+builder.Services.AddCatalogServices();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

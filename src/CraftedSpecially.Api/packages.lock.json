@@ -241,8 +241,27 @@
         "resolved": "8.0.1",
         "contentHash": "BVYuec3jV23EMRDeR7Dr1/qhx7369dZzJ9IWy2xylvb4YfXsrUxspWc4UWYid/tj4zZK58uGZqn2WQiaDMhmAg=="
       },
-      "catalog.ui": {
+      "catalog.application": {
+        "type": "Project",
+        "dependencies": {
+          "Catalog.Domain": "[1.0.0, )"
+        }
+      },
+      "catalog.domain": {
         "type": "Project"
+      },
+      "catalog.infrastructure": {
+        "type": "Project",
+        "dependencies": {
+          "Catalog.Application": "[1.0.0, )"
+        }
+      },
+      "catalog.ui": {
+        "type": "Project",
+        "dependencies": {
+          "Catalog.Application": "[1.0.0, )",
+          "Catalog.Infrastructure": "[1.0.0, )"
+        }
       },
       "craftedspecially.servicedefaults": {
         "type": "Project",
