@@ -38,7 +38,7 @@ name: "CI Failure Doctor"
     types:
     - completed
     workflows:
-    - CI
+    - CraftedSpecially CI
 
 permissions: {}
 
