@@ -5,7 +5,7 @@ COPY ["Directory.Build.props", "."]
 COPY ["nuget.config", "."]
 COPY ["src/", "./src/"]
 RUN dotnet restore "./src/CraftedSpecially.Api/CraftedSpecially.Api.csproj" --configfile ./nuget.config --locked-mode
-RUN dotnet publish "./src/CraftedSpecially.Api/CraftedSpecially.Api.csproj" -c Release -o /app/publish --no-restore
+RUN dotnet publish "./src/CraftedSpecially.Api/CraftedSpecially.Api.csproj" -c Release -r linux-x64 -o /app/publish --no-restore
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime

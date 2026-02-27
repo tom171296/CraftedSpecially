@@ -11,6 +11,12 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="13.1.0" />
+    <!-- Aspire SDK auto-injects platform packages for the current host.
+         Explicitly add the other platform so the lock file works on both macOS dev and Linux CI. -->
+    <PackageReference Include="Aspire.Dashboard.Sdk.linux-x64" Version="13.1.0" Condition="!$([MSBuild]::IsOSPlatform('Linux'))" />
+    <PackageReference Include="Aspire.Dashboard.Sdk.osx-arm64" Version="13.1.0" Condition="!$([MSBuild]::IsOSPlatform('OSX'))" />
+    <PackageReference Include="Aspire.Hosting.Orchestration.linux-x64" Version="13.1.0" Condition="!$([MSBuild]::IsOSPlatform('Linux'))" />
+    <PackageReference Include="Aspire.Hosting.Orchestration.osx-arm64" Version="13.1.0" Condition="!$([MSBuild]::IsOSPlatform('OSX'))" />
   </ItemGroup>
 
 </Project>
