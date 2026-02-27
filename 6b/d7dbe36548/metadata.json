@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.4.8",
+  "checkpoint_id": "6bd7dbe36548",
+  "strategy": "manual-commit",
+  "branch": "issues/claude-agent-team",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".github/workflows/arch_infrastructure-deployment.yml",
+    ".github/workflows/ci.yml",
+    ".github/workflows/infrastructure_deployment.yaml",
+    "src/CraftedSpecially.Api/Dockerfile"
+  ],
+  "sessions": [
+    {
+      "metadata": "/6b/d7dbe36548/0/metadata.json",
+      "transcript": "/6b/d7dbe36548/0/full.jsonl",
+      "context": "/6b/d7dbe36548/0/context.md",
+      "content_hash": "/6b/d7dbe36548/0/content_hash.txt",
+      "prompt": "/6b/d7dbe36548/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 20,
+    "cache_creation_tokens": 24909,
+    "cache_read_tokens": 539960,
+    "output_tokens": 4299,
+    "api_call_count": 16
+  }
+}

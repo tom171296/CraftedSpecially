@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.8",
+  "checkpoint_id": "6bd7dbe36548",
+  "session_id": "1d71c5c2-e62b-4c44-be3b-4a2e608f87bc",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-27T20:32:52.612871Z",
+  "branch": "issues/claude-agent-team",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".github/workflows/arch_infrastructure-deployment.yml",
+    ".github/workflows/ci.yml",
+    ".github/workflows/infrastructure_deployment.yaml",
+    "src/CraftedSpecially.Api/Dockerfile"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "f2d6fab8cccf",
+  "token_usage": {
+    "input_tokens": 20,
+    "cache_creation_tokens": 24909,
+    "cache_read_tokens": 539960,
+    "output_tokens": 4299,
+    "api_call_count": 16
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-27T20:32:52.498537Z",
+    "agent_lines": 213,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 213,
+    "agent_percentage": 100
+  }
+}

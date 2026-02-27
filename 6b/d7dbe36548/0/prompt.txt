@@ -1,0 +1,46 @@
+Implement the following plan:
+
+# Update CI for Modular Monolith
+
+## Context
+The project migrated from separate microservices (`Services/Catalog/...`) to a modular monolith (`src/` with a root solution file). The CI workflow still references old paths and an old Dockerfile that was deleted during migration.
+
+## Changes
+
+### 1. Create new Dockerfile
+**File:** `src/CraftedSpecially.Api/Dockerfile`
+
+Multi-stage build adapted from the old `Services/Catalog/dockerfile`, updated for the new project layout:
+- Build stage copies `Directory.Build.props`, `nuget.config`, and all projects from `src/`
+- Restores and publishes the `CraftedSpecially.Api` project
+- Runtime stage stays the same (non-root user, port 8080)
+- Build context will be the repo root (so paths in Dockerfile start from root)
+
+### 2. Update `.github/workflows/ci.yml`
+
+| Section | Old path/value | New path/value |
+|---------|---------------|----------------|
+| Trivy scan volume | `Services/Catalog:/src` | `src:/src` |
+| dotnet restore | `./Services/Catalog/Catalog.Api/Catalog.Api.csproj` | `./CraftedSpecially.sln` |
+| dotnet list vulnerable | `./Services/Catalog/Catalog.Api/Catalog.Api.csproj` | `./CraftedSpecially.sln` |
+| dotnet build | `./Services/Catalog/Catalog.Api/Catalog.Api.csproj` | `./CraftedSpecially.sln` |
+| Docker context | `./Services` | `.` |
+| Docker file | `./Services/Catalog/dockerfile` | `./src/CraftedSpecially.Api/Dockerfile` |
+| Artifact name | `catalog-api-build-output` | `crafted-specially-build-output` |
+| Provenance artifact | `catalog-api-provenance` | `crafted-specially-provenance` |
+
+### 3. No other files changed
+
+## Verification
+- Review the updated `ci.yml` for correct paths
+- Run `dotnet restore ./CraftedSpecially.sln --locked-mode` locally to confirm it works
+- Run `docker build -f ./src/CraftedSpecially.Api/Dockerfile .` locally to confirm the image builds
+
+
+If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/tom/.claude/projects/-Users-tom-Documents-workspace-private-CraftedSpecially/72e8ddfd-bc1d-4d80-977e-90f3540f265c.jsonl
+
+If this plan can be broken down into multiple independent tasks, consider using the TeamCreate tool to create a team and parallelize the work.
+
+---
+
+commit this
