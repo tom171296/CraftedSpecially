@@ -31,8 +31,5 @@ TODO
 CraftedSpecially uses Azure for hosting. The application is deployed in a container app.
 The infrastructure is defined using Bicep. The bicep files are located in the `infra` folder.
 
-The structure of the `infra` folder is as follows:
-
-
 ## Tests
 TODO - Most important for automating agentic coding.
