@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.3.0" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>7e1bfd64-8d4f-40db-9ac6-dd3010af04d3</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.1.0" />
+    <!-- Aspire SDK auto-injects platform packages for the current host.
+         Explicitly add the other platform so the lock file works on both macOS dev and Linux CI. -->
+    <PackageReference Include="Aspire.Dashboard.Sdk.linux-x64" Version="13.1.0" Condition="!$([MSBuild]::IsOSPlatform('Linux'))" />
+    <PackageReference Include="Aspire.Dashboard.Sdk.osx-arm64" Version="13.1.0" Condition="!$([MSBuild]::IsOSPlatform('OSX'))" />
+    <PackageReference Include="Aspire.Hosting.Orchestration.linux-x64" Version="13.1.0" Condition="!$([MSBuild]::IsOSPlatform('Linux'))" />
+    <PackageReference Include="Aspire.Hosting.Orchestration.osx-arm64" Version="13.1.0" Condition="!$([MSBuild]::IsOSPlatform('OSX'))" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,6 @@
+@CraftedSpecially.Api_HostAddress = http://localhost:5001
+
+GET {{CraftedSpecially.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
