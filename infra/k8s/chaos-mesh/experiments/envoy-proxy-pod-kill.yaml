@@ -1,0 +1,14 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: envoy-proxy-pod-kill
+  namespace: chaos-mesh
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    namespaces:
+      - envoy-gateway-system
+    labelSelectors:
+      gateway.envoyproxy.io/owning-gateway-name: craftedspecially-gateway
+  duration: "60s"

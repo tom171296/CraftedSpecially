@@ -1,0 +1,133 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.42.1.51946",
+      "templateHash": "17290465196477093084"
+    }
+  },
+  "parameters": {
+    "experimentName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Chaos Studio experiment"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Azure region"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Environment tag value used in the KQL target query (e.g. staging, prod). Matches the `environment` tag on AKS node pool VMSSes."
+      }
+    },
+    "subscriptionId": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]",
+      "metadata": {
+        "description": "Azure subscription ID scoped in the KQL selector query"
+      }
+    },
+    "targetZone": {
+      "type": "int",
+      "defaultValue": 1,
+      "allowedValues": [
+        1,
+        2,
+        3
+      ],
+      "metadata": {
+        "description": "Availability zone to fault (1, 2, or 3)"
+      }
+    },
+    "faultDurationMinutes": {
+      "type": "int",
+      "defaultValue": 10,
+      "minValue": 1,
+      "maxValue": 60,
+      "metadata": {
+        "description": "Duration of the fault in minutes (default 10)"
+      }
+    },
+    "managedIdentityId": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID of the user-assigned managed identity used by the experiment"
+      }
+    }
+  },
+  "variables": {
+    "selectorId": "aks-node-pools"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Chaos/experiments",
+      "apiVersion": "2023-11-01",
+      "name": "[parameters('experimentName')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', parameters('managedIdentityId'))]": {}
+        }
+      },
+      "properties": {
+        "selectors": [
+          {
+            "type": "Query",
+            "id": "[variables('selectorId')]",
+            "queryString": "[format('Resources | where type == ''microsoft.compute/virtualmachinescalesets'' | where tags[''chaos-target''] == ''true'' and tags[''environment''] == ''{0}''', parameters('environment'))]",
+            "subscriptionIds": [
+              "[parameters('subscriptionId')]"
+            ]
+          }
+        ],
+        "steps": [
+          {
+            "name": "AKS Zonal Failure",
+            "branches": [
+              {
+                "name": "[format('Shutdown Zone {0}', parameters('targetZone'))]",
+                "actions": [
+                  {
+                    "type": "continuous",
+                    "name": "urn:csci:microsoft:virtualMachineScaleSet:shutdown/2.0",
+                    "duration": "[format('PT{0}M', parameters('faultDurationMinutes'))]",
+                    "parameters": [
+                      {
+                        "key": "abruptShutdown",
+                        "value": "false"
+                      },
+                      {
+                        "key": "zones",
+                        "value": "[format('[\"{0}\"]', parameters('targetZone'))]"
+                      }
+                    ],
+                    "selectorId": "[variables('selectorId')]"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "experimentId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Chaos/experiments', parameters('experimentName'))]"
+    },
+    "experimentName": {
+      "type": "string",
+      "value": "[parameters('experimentName')]"
+    }
+  }
+}

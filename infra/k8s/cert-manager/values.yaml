@@ -1,0 +1,25 @@
+# cert-manager Helm values
+# Chart: https://charts.jetstack.io (cert-manager)
+# Namespace: cert-manager
+#
+# Install:
+#   helm repo add jetstack https://charts.jetstack.io --force-update
+#   helm upgrade --install cert-manager jetstack/cert-manager \
+#     --namespace cert-manager --create-namespace \
+#     --version v1.16.3 \
+#     --values infra/k8s/cert-manager/values.yaml
+
+# Enable the Gateway API integration so cert-manager can manage
+# certificates referenced from Gateway resources.
+featureGates: "ExperimentalGatewayAPISupport=true"
+
+# CRDs are managed separately by the chart when this is true.
+crds:
+  enabled: true
+
+# Two replicas for high availability.
+replicaCount: 2
+
+# Run on the workload node pool.
+nodeSelector:
+  agentpool: workloadpool

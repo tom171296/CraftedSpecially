@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: chaos-mesh
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    # Helm release
+    - repoURL: https://charts.chaos-mesh.org
+      chart: chaos-mesh
+      targetRevision: v2.6.3
+      helm:
+        valueFiles:
+          - $values/infra/k8s/chaos-mesh/values.yaml
+    # Values file reference
+    - repoURL: https://github.com/tom171296/CraftedSpecially.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: chaos-mesh
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

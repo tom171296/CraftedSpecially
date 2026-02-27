@@ -1,0 +1,74 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: Workflow
+metadata:
+  name: envoy-gateway-ha-validation
+  namespace: chaos-mesh
+spec:
+  entry: serial-ha-tests
+  templates:
+    - name: serial-ha-tests
+      templateType: Serial
+      deadline: 10m
+      children:
+        - kill-gateway-controller
+        - recovery-pause-1
+        - kill-envoy-proxy
+        - recovery-pause-2
+        - degrade-proxy-network
+
+    # Step 1: Kill one gateway controller pod.
+    # Validates that the surviving replica continues processing gateway configuration.
+    - name: kill-gateway-controller
+      templateType: PodChaos
+      deadline: 90s
+      podChaos:
+        action: pod-kill
+        mode: one
+        selector:
+          namespaces:
+            - envoy-gateway-system
+          labelSelectors:
+            app.kubernetes.io/name: envoy-gateway
+
+    # Allow Kubernetes to reschedule the killed pod before the next step.
+    - name: recovery-pause-1
+      templateType: Suspend
+      deadline: 30s
+
+    # Step 2: Kill one envoy proxy pod.
+    # Validates that traffic is absorbed by the remaining proxy replica(s) and the
+    # HPA can scale up to restore capacity.
+    - name: kill-envoy-proxy
+      templateType: PodChaos
+      deadline: 90s
+      podChaos:
+        action: pod-kill
+        mode: one
+        selector:
+          namespaces:
+            - envoy-gateway-system
+          labelSelectors:
+            gateway.envoyproxy.io/owning-gateway-name: craftedspecially-gateway
+
+    - name: recovery-pause-2
+      templateType: Suspend
+      deadline: 30s
+
+    # Step 3: Inject 100ms latency + jitter on all proxy pods simultaneously.
+    # Validates that the service remains available under degraded network conditions
+    # and that downstream timeouts / retries are configured correctly.
+    - name: degrade-proxy-network
+      templateType: NetworkChaos
+      deadline: 90s
+      networkChaos:
+        action: delay
+        mode: all
+        selector:
+          namespaces:
+            - envoy-gateway-system
+          labelSelectors:
+            gateway.envoyproxy.io/owning-gateway-name: craftedspecially-gateway
+        delay:
+          latency: "100ms"
+          jitter: "20ms"
+          correlation: "50"

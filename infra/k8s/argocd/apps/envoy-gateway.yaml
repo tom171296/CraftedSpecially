@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: envoy-gateway
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    # Helm release
+    - repoURL: oci://docker.io/envoyproxy
+      chart: gateway-helm
+      targetRevision: v1.3.0
+      helm:
+        valueFiles:
+          - $values/infra/k8s/envoy-gateway/values.yaml
+    # Values file reference
+    - repoURL: https://github.com/tom171296/CraftedSpecially.git
+      targetRevision: main
+      ref: values
+    # GatewayClass and Gateway raw manifests
+    - repoURL: https://github.com/tom171296/CraftedSpecially.git
+      targetRevision: main
+      path: infra/k8s/envoy-gateway
+      directory:
+        include: "gatewayclass.yaml,gateway.yaml,envoy-proxy.yaml,pod-disruption-budget.yaml"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: envoy-gateway-system
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

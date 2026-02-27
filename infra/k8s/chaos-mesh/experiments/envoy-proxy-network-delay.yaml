@@ -1,0 +1,19 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: envoy-proxy-network-delay
+  namespace: chaos-mesh
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces:
+      - envoy-gateway-system
+    labelSelectors:
+      gateway.envoyproxy.io/owning-gateway-name: craftedspecially-gateway
+  delay:
+    latency: "100ms"
+    jitter: "20ms"
+    # Packets in the same flow are correlated to simulate realistic network conditions.
+    correlation: "50"
+  duration: "60s"

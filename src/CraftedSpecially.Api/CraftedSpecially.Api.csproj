@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CraftedSpecially.ServiceDefaults\CraftedSpecially.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\modules\catalog\Catalog.UI\Catalog.UI.csproj" />
+  </ItemGroup>
+
+</Project>

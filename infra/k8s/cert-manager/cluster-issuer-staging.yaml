@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    # Let's Encrypt staging — use this until you have validated the full flow.
+    # Certificates from this issuer are NOT trusted by browsers (staging CA).
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: "" # TODO: replace with your email address (used by Let's Encrypt for expiry notices)
+    privateKeySecretRef:
+      name: letsencrypt-staging-account-key
+    solvers:
+      - http01:
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: craftedspecially-gateway
+                namespace: envoy-gateway-system
+                kind: Gateway

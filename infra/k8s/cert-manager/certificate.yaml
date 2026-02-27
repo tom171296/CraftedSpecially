@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: craftedspecially-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: craftedspecially-tls
+  dnsNames:
+    - "craftedspecially-pip.eastus.cloudapp.azure.com"
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  # cert-manager will keep the certificate renewed at least 30 days before expiry.
+  renewBefore: 720h # 30 days

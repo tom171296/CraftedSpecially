@@ -1,0 +1,28 @@
+# Chaos Mesh Helm values
+# Chart: https://charts.chaos-mesh.org (chaos-mesh)
+# Namespace: chaos-mesh
+#
+# Install:
+#   helm repo add chaos-mesh https://charts.chaos-mesh.org
+#   helm upgrade --install chaos-mesh chaos-mesh/chaos-mesh \
+#     --namespace chaos-mesh --create-namespace \
+#     --version v2.6.3 \
+#     --values infra/k8s/chaos-mesh/values.yaml
+
+controllerManager:
+  # Run the controller on the workload node pool.
+  nodeSelector:
+    agentpool: workloadpool
+
+chaosDaemon:
+  # AKS uses containerd as the container runtime.
+  runtime: containerd
+  socketPath: /run/containerd/containerd.sock
+  # Run daemon pods on the workload node pool.
+  nodeSelector:
+    agentpool: workloadpool
+
+dashboard:
+  # Run the dashboard on the workload node pool.
+  nodeSelector:
+    agentpool: workloadpool
