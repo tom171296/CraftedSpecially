@@ -1,4 +1,4 @@
-name: Catalog service CI/CD
+name: CraftedSpecially CI
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: crafted-specially/catalog-api
+  IMAGE_NAME: crafted-specially/crafted-specially
   BUILD_CONFIGURATION: Release
 
 permissions: {}
@@ -28,7 +28,7 @@ jobs:
         run: |
           docker run --rm \
             -e TRIVY_DB_REPOSITORY=public.ecr.aws/aquasecurity/trivy-db,aquasec/trivy-db,ghcr.io/aquasecurity/ \
-            -v "${{ github.workspace }}/Services/Catalog:/src" \
+            -v "${{ github.workspace }}/src:/src" \
             aquasec/trivy:latest \
             fs -f json --scanners vuln,secret,misconfig \
             --exit-code 1 --severity HIGH,CRITICAL /src
@@ -59,13 +59,13 @@ jobs:
           restore-keys: nuget-${{ runner.os }}-
 
       - name: Restore dependencies
-        run: dotnet restore ./Services/Catalog/Catalog.Api/Catalog.Api.csproj --locked-mode
+        run: dotnet restore ./CraftedSpecially.sln --locked-mode
 
       - name: Check for vulnerable dependencies
-        run: dotnet list ./Services/Catalog/Catalog.Api/Catalog.Api.csproj package --vulnerable
+        run: dotnet list ./CraftedSpecially.sln package --vulnerable
 
       - name: Build
-        run: dotnet build ./Services/Catalog/Catalog.Api/Catalog.Api.csproj --output buildOutput --no-restore --configuration Release
+        run: dotnet build ./CraftedSpecially.sln --output buildOutput --no-restore --configuration Release
 
       - name: Generate SBOM
         run: |
@@ -76,7 +76,7 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: catalog-api-build-output
+          name: crafted-specially-build-output
           path: buildOutput
       
       # Docker build and push steps
@@ -91,8 +91,8 @@ jobs:
         id: build_and_push
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v3
         with:
-          context: ./Services
-          file: ./Services/Catalog/dockerfile
+          context: .
+          file: ./src/CraftedSpecially.Api/Dockerfile
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
     
@@ -115,7 +115,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v4
         with:
-          name: catalog-api-build-output
+          name: crafted-specially-build-output
           path: buildOutput
 
       - name: Log in to GitHub Container Registry
@@ -144,7 +144,7 @@ jobs:
       - name: Upload attestation artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
         with:
-          name: catalog-api-provenance
+          name: crafted-specially-provenance
           path: ${{steps.generate_provenance.outputs.bundle-path}}
   
   # deployment: 
