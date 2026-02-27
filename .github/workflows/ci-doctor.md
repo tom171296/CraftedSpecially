@@ -2,7 +2,7 @@
 description: Investigates failed CI workflows to identify root causes and patterns, creating issues with diagnostic information
 on:
   workflow_run:
-    workflows: ["CI"]  # Monitor the CI workflow specifically
+    workflows: ["CraftedSpecially CI"]  # Monitor the CI workflow specifically
     types:
       - completed
     branches:
