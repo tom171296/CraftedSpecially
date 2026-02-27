@@ -1,0 +1,5 @@
+help me update the ci.yml file. The setup changed from seperate microservices to a modular monolith setup.
+
+---
+
+[Request interrupted by user for tool use]
