@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.4.8",
+  "checkpoint_id": "590f92f2d7de",
+  "session_id": "f208319f-158a-4378-a223-0e0448eb4405",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-27T20:44:31.453862Z",
+  "branch": "issues/claude-agent-team",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "Directory.Build.props",
+    "src/CraftedSpecially.Api/Dockerfile",
+    "src/CraftedSpecially.Api/packages.lock.json",
+    "src/CraftedSpecially.AppHost/CraftedSpecially.AppHost.csproj",
+    "src/CraftedSpecially.AppHost/packages.lock.json",
+    "src/CraftedSpecially.ServiceDefaults/packages.lock.json",
+    "src/modules/catalog/Catalog.Application/packages.lock.json",
+    "src/modules/catalog/Catalog.Domain/packages.lock.json",
+    "src/modules/catalog/Catalog.Infrastructure/packages.lock.json",
+    "src/modules/catalog/Catalog.UI/packages.lock.json"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "5fca6f35bab6",
+  "token_usage": {
+    "input_tokens": 41,
+    "cache_creation_tokens": 47575,
+    "cache_read_tokens": 1768264,
+    "output_tokens": 12255,
+    "api_call_count": 33
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-27T20:44:31.3416Z",
+    "agent_lines": 0,
+    "human_added": 0,
+    "human_modified": 9,
+    "human_removed": 620,
+    "total_committed": 19,
+    "agent_percentage": 0
+  }
+}

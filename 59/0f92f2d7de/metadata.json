@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.4.8",
+  "checkpoint_id": "590f92f2d7de",
+  "strategy": "manual-commit",
+  "branch": "issues/claude-agent-team",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "Directory.Build.props",
+    "src/CraftedSpecially.Api/Dockerfile",
+    "src/CraftedSpecially.Api/packages.lock.json",
+    "src/CraftedSpecially.AppHost/CraftedSpecially.AppHost.csproj",
+    "src/CraftedSpecially.AppHost/packages.lock.json",
+    "src/CraftedSpecially.ServiceDefaults/packages.lock.json",
+    "src/modules/catalog/Catalog.Application/packages.lock.json",
+    "src/modules/catalog/Catalog.Domain/packages.lock.json",
+    "src/modules/catalog/Catalog.Infrastructure/packages.lock.json",
+    "src/modules/catalog/Catalog.UI/packages.lock.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/59/0f92f2d7de/0/metadata.json",
+      "transcript": "/59/0f92f2d7de/0/full.jsonl",
+      "context": "/59/0f92f2d7de/0/context.md",
+      "content_hash": "/59/0f92f2d7de/0/content_hash.txt",
+      "prompt": "/59/0f92f2d7de/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 41,
+    "cache_creation_tokens": 47575,
+    "cache_read_tokens": 1768264,
+    "output_tokens": 12255,
+    "api_call_count": 33
+  }
+}
