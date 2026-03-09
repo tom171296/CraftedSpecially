@@ -1,0 +1,17 @@
+{
+    "mcpServers": {
+        "microsoft.docs.mcp": {
+            "type": "http",
+            "url": "https://learn.microsoft.com/api/mcp"
+        },
+        "nuget.mcp": {
+            "type": "stdio",
+            "command": "dnx",
+            "args": [
+                "NuGet.Mcp.Server",
+                "--prerelease",
+                "--yes"
+            ]
+        }
+    }
+}
