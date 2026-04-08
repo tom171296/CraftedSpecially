@@ -22,7 +22,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2025-07-02-preview' = {
     tier: 'Standard'
   }
   properties: {
-    dnsPrefix: 'dns-prefix'
+    dnsPrefix: aksName
     agentPoolProfiles: [
       {
         name: 'agentpool'
@@ -37,6 +37,9 @@ resource aks 'Microsoft.ContainerService/managedClusters@2025-07-02-preview' = {
         vmSize: 'Standard_DS2_v2'
         osType: 'Linux'
         mode: 'User'
+        enableAutoScaling: true
+        minCount: 2
+        maxCount: 10
       }
     ]
     azureMonitorProfile: {
@@ -45,6 +48,33 @@ resource aks 'Microsoft.ContainerService/managedClusters@2025-07-02-preview' = {
         logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceId
       }
     }
+    oidcIssuerProfile: {
+      enabled: true
+    }
+    securityProfile: {
+      workloadIdentity: {
+        enabled: true
+      }
+    }
+  }
+}
+
+// Diagnostic settings for AKS control plane audit logging
+resource aksDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: '${aksName}-diagnostics'
+  scope: aks
+  properties: {
+    workspaceId: logAnalyticsWorkspaceId
+    logs: [
+      {
+        category: 'kube-audit'
+        enabled: true
+      }
+      {
+        category: 'kube-audit-admin'
+        enabled: true
+      }
+    ]
   }
 }
 
@@ -57,4 +87,6 @@ resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
     principalId: aks.properties.identityProfile.kubeletidentity.objectId
     principalType: 'ServicePrincipal'
   }
-} 
+}
+
+output oidcIssuerUrl string = aks.properties.oidcIssuerProfile.issuerURL

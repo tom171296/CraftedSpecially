@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: craftedspecially-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: craftedspecially-tls
+  # TODO: replace with the actual domain name used by the Gateway.
+  dnsNames:
+    - "" # e.g. api.craftedspecially.example.com
+  issuerRef:
+    name: letsencrypt-staging  # Switch to letsencrypt-prod once validated.
+    kind: ClusterIssuer
+  # cert-manager will keep the certificate renewed at least 30 days before expiry.
+  renewBefore: 720h # 30 days

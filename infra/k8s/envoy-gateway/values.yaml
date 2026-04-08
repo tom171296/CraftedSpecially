@@ -1,0 +1,26 @@
+# Envoy Gateway Helm values
+# Chart: oci://docker.io/envoyproxy/gateway-helm
+# Namespace: envoy-gateway-system
+#
+# Install:
+#   helm upgrade --install envoy-gateway oci://docker.io/envoyproxy/gateway-helm \
+#     --namespace envoy-gateway-system --create-namespace \
+#     --version v1.3.0 \
+#     --values infra/k8s/envoy-gateway/values.yaml
+
+config:
+  envoyGateway:
+    provider:
+      type: Kubernetes
+      kubernetes:
+        # The managed Envoy proxy deployment settings.
+        envoyDeployment:
+          replicas: 2
+          pod:
+            # Run proxy pods on the workload node pool.
+            nodeSelector:
+              agentpool: workloadpool
+        # Run the gateway controller itself on the workload node pool.
+        envoyHpa:
+          minReplicas: 2
+          maxReplicas: 5

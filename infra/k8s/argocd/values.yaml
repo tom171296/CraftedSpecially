@@ -1,0 +1,63 @@
+# ArgoCD Helm values
+# Chart: https://argoproj.github.io/argo-helm (argo-cd)
+# Namespace: argocd
+#
+# Bootstrap (one-time):
+#   ./infra/k8s/argocd/bootstrap.sh
+
+global:
+  # Run ArgoCD components on the workload node pool.
+  nodeSelector:
+    agentpool: workloadpool
+
+server:
+  # Disable TLS on the server — TLS is terminated by the gateway.
+  insecure: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+applicationSet:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+controller:
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+repoServer:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+redis:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+# Disable Dex — no SSO needed for this deployment.
+dex:
+  enabled: false
+
+configs:
+  params:
+    # Match server.insecure above so the health check passes.
+    server.insecure: true

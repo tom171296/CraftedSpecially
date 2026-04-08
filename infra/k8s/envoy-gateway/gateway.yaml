@@ -1,0 +1,22 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: craftedspecially-gateway
+  namespace: envoy-gateway-system
+  annotations:
+    # cert-manager will manage the TLS certificate for the HTTPS listener.
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+spec:
+  gatewayClassName: envoy
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+    - name: https
+      protocol: HTTPS
+      port: 443
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: craftedspecially-tls
+            kind: Secret

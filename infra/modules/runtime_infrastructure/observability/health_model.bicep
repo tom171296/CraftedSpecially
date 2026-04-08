@@ -10,20 +10,20 @@ resource service_group 'Microsoft.Management/serviceGroups@2024-02-01-preview' e
   scope: tenant()
 }
 
-resource health_model 'Microsoft.CloudHealth/healthmodels@2025-05-01-preview' = {
-  location: projectLocation
-  name: '${projectName}-healthmodel'
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties: {
-    discovery: {
-      addRecommendedSignals: 'Enabled'
-      scope: service_group.id
-      identity: 'SystemAssigned'
-    }
-  }
-}
+// resource health_model 'Microsoft.CloudHealth/healthmodels@2025-05-01-preview' = {
+//   location: projectLocation
+//   name: '${projectName}-healthmodel'
+//   identity: {
+//     type: 'SystemAssigned'
+//   }
+//   properties: {
+//     discovery: {
+//       addRecommendedSignals: 'Enabled'
+//       scope: service_group.id
+//       identity: 'SystemAssigned'
+//     }
+//   }
+// }
 
 // role assignment for health model to read from service group
 // TODO - fix role assignment, for now done manually
@@ -38,12 +38,12 @@ resource health_model 'Microsoft.CloudHealth/healthmodels@2025-05-01-preview' = 
 // }
 
 // // monitoring reader for resource group
-resource monitoringReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(health_model.id, 'MonitoringReaderRoleAssignment')
-  scope: resourceGroup()
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '43d0d8ad-25c7-4714-9337-8ba259a9fe05') // Monitoring Reader
-    principalId: health_model.identity.principalId
-    principalType: 'ServicePrincipal'
-  }
-} 
+// resource monitoringReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+//   name: guid(health_model.id, 'MonitoringReaderRoleAssignment')
+//   scope: resourceGroup()
+//   properties: {
+//     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '43d0d8ad-25c7-4714-9337-8ba259a9fe05') // Monitoring Reader
+//     principalId: health_model.identity.principalId
+//     principalType: 'ServicePrincipal'
+//   }
+// } 

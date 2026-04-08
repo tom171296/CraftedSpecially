@@ -24,6 +24,10 @@ is implemented as a separate class that contains the necessary logic to execute 
 #### Domain project structure
 The domain project contains the core business logic of the application. It includes entities, value objects, and domain services that represent the concepts and rules of the business domain. The domain project should be independent of any infrastructure or application concerns, allowing it to be easily tested and maintained.
 
+
+## Core rules
+- Use cases are always implemented using a stacked pull request strategy, where the implementation is broken down into smaller, manageable pull requests that build on top of each other. This allows for easier code review and ensures that each change is focused on a specific aspect of the implementation.
+
 ## Development guidelines
 TODO
 
@@ -33,3 +37,4 @@ The infrastructure is defined using Bicep. The bicep files are located in the `i
 
 ## Tests
 TODO - Most important for automating agentic coding.
+

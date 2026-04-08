@@ -1,12 +1,15 @@
 targetScope = 'resourceGroup'
 
 param location string = resourceGroup().location
+param projectName string
+param appWorkloadIdentityPrincipalId string
 
 module appConfig './configuration_management/app_config.bicep' = {
   name: 'appConfigDeployment'
   params: {
-    appConfigName: 'myAppConfigStore'
+    appConfigName: '${projectName}AppConfig'
     location: location
+    appWorkloadIdentityPrincipalId: appWorkloadIdentityPrincipalId
   }
 }
 

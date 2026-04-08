@@ -36,6 +36,16 @@ module management_governance './modules/management_governance/management_governa
   }
 }
 
+module application_infrastructure './modules/application_infrastructure/application_infrastructure.bicep' = {
+  name: 'deployApplicationInfrastructure'
+  scope: rg
+  params: {
+    location: projectLocation
+    projectName: projectName
+    appWorkloadIdentityPrincipalId: management_governance.outputs.appWorkloadIdentityPrincipalId
+  }
+}
+
 module runtime_infrastructure './modules/runtime_infrastructure/runtime_infrastructure.bicep' = {
   name: 'deployRuntimeInfrastructure'
   scope: rg
@@ -44,5 +54,15 @@ module runtime_infrastructure './modules/runtime_infrastructure/runtime_infrastr
     projectName: projectName
     containerRegistryName: management_governance.outputs.containerRegistryName
     serviceGroupName: service_group.name
+  }
+}
+
+module federated_credentials './modules/management_governance/workload_identity/federated_credentials.bicep' = {
+  name: 'deployFederatedCredentials'
+  scope: rg
+  params: {
+    oidcIssuerUrl: runtime_infrastructure.outputs.oidcIssuerUrl
+    appWorkloadIdentityName: management_governance.outputs.appWorkloadIdentityName
+    esoWorkloadIdentityName: management_governance.outputs.esoWorkloadIdentityName
   }
 }
