@@ -1,0 +1,21 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: craftedspecially-proxy-config
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        annotations:
+          # Internal Azure Load Balancer — the Envoy service gets a private IP
+          # within the AKS VNet subnet (10.0.1.0/24). Internet traffic is
+          # received by the Bicep-managed Azure Public Load Balancer, which
+          # routes to this private IP via an IP-based backend pool.
+          #
+          # Private IP is sourced from the Bicep deployment output:
+          #   az deployment group show --name deployNetworking \
+          #     --resource-group <rg> --query properties.outputs.envoyInternalIp.value -o tsv
+          service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+          service.beta.kubernetes.io/azure-load-balancer-ipv4: "10.0.1.200"

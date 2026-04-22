@@ -10,8 +10,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: YOUR_REPO_SSH_URL  # e.g. git@github.com:org/CraftedSpecially.git
-    targetRevision: main
+    repoURL: https://github.com/tom171296/CraftedSpecially.git
+    targetRevision: issues/agentic-workflow
     path: infra/k8s/routes
   destination:
     server: https://kubernetes.default.svc

@@ -64,5 +64,6 @@ module federated_credentials './modules/management_governance/workload_identity/
     oidcIssuerUrl: runtime_infrastructure.outputs.oidcIssuerUrl
     appWorkloadIdentityName: management_governance.outputs.appWorkloadIdentityName
     esoWorkloadIdentityName: management_governance.outputs.esoWorkloadIdentityName
+    ciWorkloadIdentityName: management_governance.outputs.ciWorkloadIdentityName
   }
 }

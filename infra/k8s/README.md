@@ -41,7 +41,7 @@ rm /tmp/repo-secret.yaml argocd-deploy-key argocd-deploy-key.pub
 
 ## Bootstrap (one-time)
 
-Also update `YOUR_REPO_SSH_URL` in the following files before bootstrapping:
+Set the repository URL in these files before bootstrapping (public repo can use HTTPS, private repo typically uses SSH):
 
 - `infra/k8s/argocd/root-app.yaml`
 - `infra/k8s/argocd/apps/cert-manager.yaml`

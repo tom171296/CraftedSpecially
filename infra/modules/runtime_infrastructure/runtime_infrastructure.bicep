@@ -5,6 +5,7 @@ param projectName string
 
 param containerRegistryName string
 param serviceGroupName string
+param domainNameLabel string = '${toLower(projectName)}-api'
 
 module log_analytics_workspace './observability/log_analytics_workspace.bicep' = {
   name: 'deployLogAnalyticsWorkspace'
@@ -27,6 +28,7 @@ module aks './hosting/AKS.bicep' = {
     location: projectLocation
     logAnalyticsWorkspaceId: log_analytics_workspace.outputs.workspaceId
     containerRegistryName: containerRegistryName
+    vnetSubnetId: networking.outputs.aksSubnetId
   }
 }
 
@@ -40,4 +42,16 @@ module health_model_module './observability/health_model.bicep' = {
   }
 }
 
+module networking './networking/networking.bicep' = {
+  name: 'deployNetworking'
+  scope: resourceGroup()
+  params: {
+    domainNameLabel: domainNameLabel
+    location: projectLocation
+  }
+}
+
 output oidcIssuerUrl string = aks.outputs.oidcIssuerUrl
+output gatewayIpAddress string = networking.outputs.ipAddress
+output gatewayFqdn string = networking.outputs.fqdn
+output envoyInternalIp string = networking.outputs.envoyInternalIp

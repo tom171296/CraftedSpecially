@@ -5,6 +5,7 @@ param location string
 
 param logAnalyticsWorkspaceId string
 param containerRegistryName string
+param vnetSubnetId string
 
 resource existingACR 'Microsoft.ContainerRegistry/registries@2025-05-01-preview' existing = {
   name: containerRegistryName
@@ -30,6 +31,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2025-07-02-preview' = {
         vmSize: 'Standard_DS2_v2'
         osType: 'Linux'
         mode: 'System'
+        vnetSubnetID: vnetSubnetId
       }
       {
         name: 'workloadpool'
@@ -40,6 +42,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2025-07-02-preview' = {
         enableAutoScaling: true
         minCount: 2
         maxCount: 10
+        vnetSubnetID: vnetSubnetId
       }
     ]
     azureMonitorProfile: {
@@ -47,6 +50,11 @@ resource aks 'Microsoft.ContainerService/managedClusters@2025-07-02-preview' = {
         enabled: true
         logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceId
       }
+    }
+    // Explicitly avoid overlap with VNet/subnet CIDRs (10.0.0.0/16, 10.0.1.0/24).
+    networkProfile: {
+      serviceCidr: '10.2.0.0/16'
+      dnsServiceIP: '10.2.0.10'
     }
     oidcIssuerProfile: {
       enabled: true

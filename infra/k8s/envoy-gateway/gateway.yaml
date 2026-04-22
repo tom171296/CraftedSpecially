@@ -8,6 +8,12 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   gatewayClassName: envoy
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: craftedspecially-proxy-config
+      namespace: envoy-gateway-system
   listeners:
     - name: http
       protocol: HTTP

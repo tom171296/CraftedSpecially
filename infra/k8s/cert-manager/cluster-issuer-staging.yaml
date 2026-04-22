@@ -7,7 +7,7 @@ spec:
     # Let's Encrypt staging — use this until you have validated the full flow.
     # Certificates from this issuer are NOT trusted by browsers (staging CA).
     server: https://acme-staging-v02.api.letsencrypt.org/directory
-    email: "" # TODO: replace with a real contact email address
+    email: "" # TODO: replace with your email address (used by Let's Encrypt for expiry notices)
     privateKeySecretRef:
       name: letsencrypt-staging-account-key
     solvers:

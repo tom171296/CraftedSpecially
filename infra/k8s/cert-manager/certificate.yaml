@@ -5,9 +5,10 @@ metadata:
   namespace: envoy-gateway-system
 spec:
   secretName: craftedspecially-tls
-  # TODO: replace with the actual domain name used by the Gateway.
+  # TODO: replace with the FQDN from the Bicep deployment output (same value as the HTTPRoute hostname).
+  # Expected format: craftedspecially-api.<region>.cloudapp.azure.com
   dnsNames:
-    - "" # e.g. api.craftedspecially.example.com
+    - "" # e.g. craftedspecially-api.westeurope.cloudapp.azure.com
   issuerRef:
     name: letsencrypt-staging  # Switch to letsencrypt-prod once validated.
     kind: ClusterIssuer

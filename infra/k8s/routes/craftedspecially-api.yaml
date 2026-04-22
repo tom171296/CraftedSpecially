@@ -5,19 +5,26 @@ metadata:
   namespace: default
 spec:
   parentRefs:
-    - name: craftedspecially-gateway
-      namespace: envoy-gateway-system
+    - group: gateway.networking.k8s.io	
       kind: Gateway
+      name: craftedspecially-gateway
+      namespace: envoy-gateway-system
       sectionName: https
-  # TODO: replace with the actual domain name.
+  # TODO: replace with the FQDN from the Bicep deployment output:
+  #   az deployment group show --name deployNetworking \
+  #     --resource-group <rg> --query properties.outputs.gatewayFqdn.value -o tsv
+  # Expected format: craftedspecially-api.<region>.cloudapp.azure.com
   hostnames:
-    - "" # e.g. api.craftedspecially.example.com
+    - "craftedspecially-api.eastus.cloudapp.azure.com" # e.g. craftedspecially-api.westeurope.cloudapp.azure.com
   rules:
     - matches:
         - path:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: craftedspecially-api
+        - group: ''	
+          kind: Service	
+          name: craftedspecially-api
           port: 8080
+          weight: 1
           # TODO: update port to match the Service port exposed by CraftedSpecially.Api

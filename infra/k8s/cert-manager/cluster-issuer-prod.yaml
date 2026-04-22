@@ -6,7 +6,7 @@ spec:
   acme:
     # Let's Encrypt production — only switch here once staging has been validated.
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: "" # TODO: replace with a real contact email address
+    email: "" # TODO: replace with your email address (used by Let's Encrypt for expiry notices)
     privateKeySecretRef:
       name: letsencrypt-prod-account-key
     solvers:

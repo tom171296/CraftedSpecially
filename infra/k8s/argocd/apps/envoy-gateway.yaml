@@ -11,22 +11,22 @@ spec:
   project: default
   sources:
     # Helm release
-    - repoURL: docker.io/envoyproxy/gateway-helm
+    - repoURL: docker.io/envoyproxy
       chart: gateway-helm
       targetRevision: v1.3.0
       helm:
         valueFiles:
           - $values/infra/k8s/envoy-gateway/values.yaml
     # Values file reference
-    - repoURL: YOUR_REPO_SSH_URL  # e.g. git@github.com:org/CraftedSpecially.git
-      targetRevision: main
+    - repoURL: https://github.com/tom171296/CraftedSpecially.git
+      targetRevision: issues/agentic-workflow
       ref: values
     # GatewayClass and Gateway raw manifests
-    - repoURL: YOUR_REPO_SSH_URL
-      targetRevision: main
+    - repoURL: https://github.com/tom171296/CraftedSpecially.git
+      targetRevision: issues/agentic-workflow
       path: infra/k8s/envoy-gateway
       directory:
-        include: "gatewayclass.yaml,gateway.yaml"
+        include: "gatewayclass.yaml,gateway.yaml,envoy-proxy.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: envoy-gateway-system
