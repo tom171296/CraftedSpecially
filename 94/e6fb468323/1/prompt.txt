@@ -1,0 +1,5 @@
+I want to deploy a gateway as well that uses the envoy gateway. Make it a HA setup please
+
+---
+
+I want to deploy http routes as well for argocd and craftedspecially
