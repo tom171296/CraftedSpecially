@@ -11,7 +11,7 @@ spec:
   project: default
   sources:
     # Helm release
-    - repoURL: oci://docker.io/envoyproxy
+    - repoURL: oci://docker.io/envoyproxy/gateway-helm
       chart: gateway-helm
       targetRevision: v1.3.0
       helm:
