@@ -1,0 +1,30 @@
+---
+# RBAC to allow cert-manager to manage resources in envoy-gateway-system namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cert-manager-envoy-gateway
+  namespace: envoy-gateway-system
+rules:
+  # Allow cert-manager to manage certificates in this namespace
+  - apiGroups: ["cert-manager.io"]
+    resources: ["certificates"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Allow cert-manager to manage secrets (for TLS certificates)
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cert-manager-envoy-gateway
+  namespace: envoy-gateway-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cert-manager-envoy-gateway
+subjects:
+  - kind: ServiceAccount
+    name: cert-manager
+    namespace: cert-manager

@@ -21,11 +21,24 @@ spec:
     - repoURL: https://github.com/tom171296/CraftedSpecially.git
       targetRevision: main
       ref: values
+    # RBAC - synced first
     - repoURL: https://github.com/tom171296/CraftedSpecially.git
       targetRevision: main
       path: infra/k8s/cert-manager
       directory:
-        include: "cluster-issuer-*.yaml,certificate.yaml"
+        include: "rbac.yaml"
+    # ClusterIssuers - synced after RBAC
+    - repoURL: https://github.com/tom171296/CraftedSpecially.git
+      targetRevision: main
+      path: infra/k8s/cert-manager
+      directory:
+        include: "cluster-issuer-*.yaml"
+    # Certificate resource - synced after ClusterIssuers
+    - repoURL: https://github.com/tom171296/CraftedSpecially.git
+      targetRevision: main
+      path: infra/k8s/cert-manager
+      directory:
+        include: "certificate.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager
@@ -36,3 +49,10 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    # Ignore differences in managed certificate status fields
+    - group: cert-manager.io
+      kind: Certificate
+      jsonPointers:
+        - /status
