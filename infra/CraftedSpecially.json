@@ -1,0 +1,1783 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.42.1.51946",
+      "templateHash": "17183886358368533728"
+    }
+  },
+  "parameters": {
+    "projectLocation": {
+      "type": "string",
+      "defaultValue": "canadacentral"
+    },
+    "projectName": {
+      "type": "string",
+      "defaultValue": "CraftedSpecially"
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "staging"
+    },
+    "chaosNodeResourceGroup": {
+      "type": "string",
+      "defaultValue": "[format('MC_{0}_{1}-aks_{2}', parameters('projectName'), parameters('projectName'), parameters('projectLocation'))]",
+      "metadata": {
+        "description": "AKS node resource group name (MC_*). Run: az aks show -g CraftedSpecially -n CraftedSpecially-aks --query nodeResourceGroup -o tsv"
+      }
+    },
+    "chaosVmssNames": {
+      "type": "array",
+      "defaultValue": [
+        "aks-workloadpool-94760578-vmss"
+      ],
+      "metadata": {
+        "description": "VMSS names to enroll as Chaos Studio targets. Run: az vmss list -g <NODE_RG> --query \"[].name\" -o tsv"
+      }
+    },
+    "enableLoadTesting": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable Azure Load Testing"
+      }
+    },
+    "apiEndpointFqdn": {
+      "type": "string",
+      "defaultValue": "craftedspecially-pip.eastus.cloudapp.azure.com",
+      "metadata": {
+        "description": "Public API endpoint FQDN (e.g., craftedspecially-pip.eastus.cloudapp.azure.com)"
+      }
+    },
+    "apiProtocol": {
+      "type": "string",
+      "defaultValue": "https",
+      "metadata": {
+        "description": "API protocol (http or https)"
+      }
+    },
+    "apiPort": {
+      "type": "int",
+      "defaultValue": 443,
+      "metadata": {
+        "description": "API port number"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-01-01",
+      "name": "[parameters('projectName')]",
+      "location": "[parameters('projectLocation')]"
+    },
+    {
+      "type": "Microsoft.Management/serviceGroups",
+      "apiVersion": "2024-02-01-preview",
+      "scope": "/",
+      "name": "[format('{0}-servicegroup', parameters('projectName'))]",
+      "kind": "ServiceGroup",
+      "properties": {
+        "displayName": "[format('{0} Service Group', parameters('projectName'))]",
+        "parent": {
+          "resourceId": "[tenantResourceId('Microsoft.Management/serviceGroups', 'health_model_test_tomb')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deployManagementGovernance",
+      "resourceGroup": "[parameters('projectName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('projectLocation')]"
+          },
+          "projectName": {
+            "value": "[parameters('projectName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.42.1.51946",
+              "templateHash": "7234151196276139952"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "projectName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployContainerRegistry",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "registryName": {
+                    "value": "[format('{0}acr', parameters('projectName'))]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "8481646746326497896"
+                    }
+                  },
+                  "parameters": {
+                    "registryName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string",
+                      "defaultValue": "[resourceGroup().location]"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.ContainerRegistry/registries",
+                      "apiVersion": "2025-05-01-preview",
+                      "name": "[parameters('registryName')]",
+                      "location": "[parameters('location')]",
+                      "sku": {
+                        "name": "Standard"
+                      },
+                      "properties": {
+                        "adminUserEnabled": false,
+                        "anonymousPullEnabled": false
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "containerRegistryName": {
+                      "type": "string",
+                      "value": "[parameters('registryName')]"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "containerRegistryName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployContainerRegistry'), '2025-04-01').outputs.containerRegistryName.value]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('projectName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deployRuntimeInfrastructure",
+      "resourceGroup": "[parameters('projectName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "projectLocation": {
+            "value": "[parameters('projectLocation')]"
+          },
+          "projectName": {
+            "value": "[parameters('projectName')]"
+          },
+          "environment": {
+            "value": "[parameters('environment')]"
+          },
+          "containerRegistryName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('projectName')), 'Microsoft.Resources/deployments', 'deployManagementGovernance'), '2025-04-01').outputs.containerRegistryName.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.42.1.51946",
+              "templateHash": "16383449094275765881"
+            }
+          },
+          "parameters": {
+            "projectLocation": {
+              "type": "string"
+            },
+            "projectName": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string"
+            },
+            "containerRegistryName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployPublicIp",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('projectLocation')]"
+                  },
+                  "publicIpName": {
+                    "value": "[format('{0}-pip', parameters('projectName'))]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "10829902460640794041"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "defaultValue": "[resourceGroup().location]"
+                    },
+                    "publicIpName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/publicIPAddresses",
+                      "apiVersion": "2024-05-01",
+                      "name": "[parameters('publicIpName')]",
+                      "location": "[parameters('location')]",
+                      "sku": {
+                        "name": "Standard"
+                      },
+                      "properties": {
+                        "publicIPAllocationMethod": "Static",
+                        "dnsSettings": {
+                          "domainNameLabel": "[toLower(parameters('publicIpName'))]"
+                        }
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "ipAddress": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '2024-05-01').ipAddress]"
+                    },
+                    "resourceId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+                    },
+                    "publicIpName": {
+                      "type": "string",
+                      "value": "[parameters('publicIpName')]"
+                    },
+                    "fqdn": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '2024-05-01').dnsSettings.fqdn]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployAppConfig",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('projectLocation')]"
+                  },
+                  "appConfigName": {
+                    "value": "[format('{0}-appconfig', parameters('projectName'))]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "1598488369041338058"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "appConfigName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.AppConfiguration/configurationStores",
+                      "apiVersion": "2025-02-01-preview",
+                      "name": "[parameters('appConfigName')]",
+                      "location": "[parameters('location')]",
+                      "sku": {
+                        "name": "Standard"
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "appConfigEndpoint": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.AppConfiguration/configurationStores', parameters('appConfigName')), '2025-02-01-preview').endpoint]"
+                    },
+                    "appConfigId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.AppConfiguration/configurationStores', parameters('appConfigName'))]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployLogAnalyticsWorkspace",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "544657389280178256"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.OperationalInsights/workspaces",
+                      "apiVersion": "2025-02-01",
+                      "name": "[format('log-analytics-{0}', uniqueString(resourceGroup().id))]",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "sku": {
+                          "name": "PerGB2018"
+                        },
+                        "retentionInDays": 30
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "workspaceId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', format('log-analytics-{0}', uniqueString(resourceGroup().id)))]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployApplicationInsights",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "workspaceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployLogAnalyticsWorkspace'), '2025-04-01').outputs.workspaceId.value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "17137108347951444229"
+                    }
+                  },
+                  "parameters": {
+                    "workspaceId": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Insights/components",
+                      "apiVersion": "2020-02-02",
+                      "name": "[format('app-insights-{0}', uniqueString(resourceGroup().id))]",
+                      "location": "[resourceGroup().location]",
+                      "kind": "web",
+                      "properties": {
+                        "Application_Type": "web",
+                        "RetentionInDays": 30,
+                        "WorkspaceResourceId": "[parameters('workspaceId')]"
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "connectionString": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Insights/components', format('app-insights-{0}', uniqueString(resourceGroup().id))), '2020-02-02').ConnectionString]"
+                    },
+                    "instrumentationKey": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Insights/components', format('app-insights-{0}', uniqueString(resourceGroup().id))), '2020-02-02').InstrumentationKey]"
+                    },
+                    "appInsightsId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Insights/components', format('app-insights-{0}', uniqueString(resourceGroup().id)))]"
+                    },
+                    "appInsightsName": {
+                      "type": "string",
+                      "value": "[format('app-insights-{0}', uniqueString(resourceGroup().id))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployLogAnalyticsWorkspace')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployAKS",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "aksName": {
+                    "value": "[format('{0}-aks', parameters('projectName'))]"
+                  },
+                  "location": {
+                    "value": "[parameters('projectLocation')]"
+                  },
+                  "environment": {
+                    "value": "[parameters('environment')]"
+                  },
+                  "logAnalyticsWorkspaceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployLogAnalyticsWorkspace'), '2025-04-01').outputs.workspaceId.value]"
+                  },
+                  "containerRegistryName": {
+                    "value": "[parameters('containerRegistryName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "4426467756927655008"
+                    }
+                  },
+                  "parameters": {
+                    "aksName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "environment": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceId": {
+                      "type": "string"
+                    },
+                    "containerRegistryName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.ContainerService/managedClusters",
+                      "apiVersion": "2025-07-02-preview",
+                      "name": "[parameters('aksName')]",
+                      "location": "[parameters('location')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
+                      "sku": {
+                        "name": "Base",
+                        "tier": "Standard"
+                      },
+                      "properties": {
+                        "dnsPrefix": "dns-prefix",
+                        "agentPoolProfiles": [
+                          {
+                            "name": "agentpool",
+                            "count": 3,
+                            "vmSize": "Standard_DS2_v2",
+                            "osType": "Linux",
+                            "mode": "System",
+                            "availabilityZones": [
+                              "1",
+                              "2",
+                              "3"
+                            ]
+                          },
+                          {
+                            "name": "workloadpool",
+                            "count": 2,
+                            "vmSize": "Standard_DS2_v2",
+                            "osType": "Linux",
+                            "mode": "User",
+                            "availabilityZones": [
+                              "1",
+                              "2",
+                              "3"
+                            ],
+                            "tags": {
+                              "chaos-target": "true",
+                              "environment": "[parameters('environment')]"
+                            }
+                          }
+                        ],
+                        "azureMonitorProfile": {
+                          "containerInsights": {
+                            "enabled": true,
+                            "logAnalyticsWorkspaceResourceId": "[parameters('logAnalyticsWorkspaceId')]"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+                      "name": "[guid(resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName')), resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), 'acrpull-role-assignment')]",
+                      "properties": {
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+                        "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName')), '2025-07-02-preview').identityProfile.kubeletidentity.objectId]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "name": "[guid(resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName')), resourceGroup().id, 'network-contributor-role-assignment')]",
+                      "properties": {
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
+                        "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName')), '2025-07-02-preview', 'full').identity.principalId]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName'))]"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployLogAnalyticsWorkspace')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployHealthModel",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "projectLocation": {
+                    "value": "[parameters('projectLocation')]"
+                  },
+                  "projectName": {
+                    "value": "[parameters('projectName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "17021513771015149852"
+                    }
+                  },
+                  "parameters": {
+                    "projectLocation": {
+                      "type": "string"
+                    },
+                    "projectName": {
+                      "type": "string"
+                    },
+                    "healthModelLocation": {
+                      "type": "string",
+                      "defaultValue": "canadacentral",
+                      "allowedValues": [
+                        "uksouth",
+                        "canadacentral",
+                        "centralus",
+                        "swedencentral",
+                        "southeastasia"
+                      ],
+                      "metadata": {
+                        "description": "Location for the health model. Microsoft.CloudHealth/healthmodels is only available in a subset of regions."
+                      }
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.CloudHealth/healthmodels",
+                      "apiVersion": "2026-01-01-preview",
+                      "name": "[format('{0}-healthmodel', parameters('projectName'))]",
+                      "location": "[parameters('healthModelLocation')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
+                      "properties": {}
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "name": "[guid(resourceId('Microsoft.CloudHealth/healthmodels', format('{0}-healthmodel', parameters('projectName'))), 'MonitoringReaderRoleAssignment')]",
+                      "properties": {
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '43d0d8ad-25c7-4714-9337-8ba259a9fe05')]",
+                        "principalId": "[reference(resourceId('Microsoft.CloudHealth/healthmodels', format('{0}-healthmodel', parameters('projectName'))), '2026-01-01-preview', 'full').identity.principalId]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.CloudHealth/healthmodels', format('{0}-healthmodel', parameters('projectName')))]"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "staticIpAddress": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployPublicIp'), '2025-04-01').outputs.ipAddress.value]"
+            },
+            "staticIpName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployPublicIp'), '2025-04-01').outputs.publicIpName.value]"
+            },
+            "gatewayFqdn": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployPublicIp'), '2025-04-01').outputs.fqdn.value]"
+            },
+            "appInsightsConnectionString": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployApplicationInsights'), '2025-04-01').outputs.connectionString.value]"
+            },
+            "appInsightsInstrumentationKey": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployApplicationInsights'), '2025-04-01').outputs.instrumentationKey.value]"
+            },
+            "appInsightsId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployApplicationInsights'), '2025-04-01').outputs.appInsightsId.value]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('projectName')), 'Microsoft.Resources/deployments', 'deployManagementGovernance')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('projectName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deployContinuousValidation",
+      "resourceGroup": "[parameters('projectName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('projectLocation')]"
+          },
+          "environment": {
+            "value": "[parameters('environment')]"
+          },
+          "chaosNodeResourceGroup": {
+            "value": "[parameters('chaosNodeResourceGroup')]"
+          },
+          "chaosVmssNames": {
+            "value": "[parameters('chaosVmssNames')]"
+          },
+          "projectName": {
+            "value": "[parameters('projectName')]"
+          },
+          "enableLoadTesting": {
+            "value": "[parameters('enableLoadTesting')]"
+          },
+          "apiEndpointFqdn": {
+            "value": "[parameters('apiEndpointFqdn')]"
+          },
+          "apiProtocol": {
+            "value": "[parameters('apiProtocol')]"
+          },
+          "apiPort": {
+            "value": "[parameters('apiPort')]"
+          },
+          "applicationInsightsConnectionString": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('projectName')), 'Microsoft.Resources/deployments', 'deployRuntimeInfrastructure'), '2025-04-01').outputs.appInsightsConnectionString.value]"
+          },
+          "applicationInsightsInstrumentationKey": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('projectName')), 'Microsoft.Resources/deployments', 'deployRuntimeInfrastructure'), '2025-04-01').outputs.appInsightsInstrumentationKey.value]"
+          },
+          "keyVaultId": {
+            "value": ""
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.42.1.51946",
+              "templateHash": "4036122987546449190"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string"
+            },
+            "chaosNodeResourceGroup": {
+              "type": "string"
+            },
+            "chaosVmssNames": {
+              "type": "array"
+            },
+            "projectName": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "enableLoadTesting": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "apiEndpointFqdn": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "apiProtocol": {
+              "type": "string",
+              "defaultValue": "https"
+            },
+            "apiPort": {
+              "type": "int",
+              "defaultValue": 443
+            },
+            "applicationInsightsConnectionString": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "applicationInsightsInstrumentationKey": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "keyVaultId": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployChaos",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "environment": {
+                    "value": "[parameters('environment')]"
+                  },
+                  "nodeResourceGroupName": {
+                    "value": "[parameters('chaosNodeResourceGroup')]"
+                  },
+                  "vmssNames": {
+                    "value": "[parameters('chaosVmssNames')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "1277795762655105433"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "defaultValue": "[resourceGroup().location]",
+                      "metadata": {
+                        "description": "Azure region for all chaos resources"
+                      }
+                    },
+                    "prefix": {
+                      "type": "string",
+                      "defaultValue": "cs-chaos",
+                      "metadata": {
+                        "description": "Short prefix used for resource naming"
+                      }
+                    },
+                    "experimentName": {
+                      "type": "string",
+                      "defaultValue": "[format('{0}-aks-zonal-failure', parameters('prefix'))]",
+                      "metadata": {
+                        "description": "Name of the Chaos Studio experiment resource"
+                      }
+                    },
+                    "environment": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Environment tag value used in the KQL target selector query (e.g. staging, prod). Must match the `environment` tag on the AKS node pool VMSSes."
+                      }
+                    },
+                    "targetZone": {
+                      "type": "int",
+                      "defaultValue": 1,
+                      "allowedValues": [
+                        1,
+                        2,
+                        3
+                      ],
+                      "metadata": {
+                        "description": "Availability zone to fault (1, 2, or 3)"
+                      }
+                    },
+                    "faultDurationMinutes": {
+                      "type": "int",
+                      "defaultValue": 10,
+                      "minValue": 1,
+                      "maxValue": 60,
+                      "metadata": {
+                        "description": "Duration of the fault in minutes"
+                      }
+                    },
+                    "nodeResourceGroupName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Name of the AKS node resource group (MC_*) where the VMSS resources live"
+                      }
+                    },
+                    "vmssNames": {
+                      "type": "array",
+                      "metadata": {
+                        "description": "Names of the AKS user node pool VMSSes in the node resource group to enroll as Chaos Studio targets"
+                      }
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                      "apiVersion": "2023-01-31",
+                      "name": "[format('{0}-identity', parameters('prefix'))]",
+                      "location": "[parameters('location')]"
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "deployChaosSubscriptionRbac",
+                      "subscriptionId": "[subscription().subscriptionId]",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "principalId": {
+                            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('prefix'))), '2023-01-31').principalId]"
+                          },
+                          "identityId": {
+                            "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('prefix')))]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.42.1.51946",
+                              "templateHash": "8034627070308226144"
+                            }
+                          },
+                          "parameters": {
+                            "principalId": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Principal ID of the Chaos Studio managed identity"
+                              }
+                            },
+                            "identityId": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Resource ID of the managed identity (used to make the role assignment name stable)"
+                              }
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Authorization/roleAssignments",
+                              "apiVersion": "2022-04-01",
+                              "name": "[guid(subscription().id, parameters('identityId'), 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+                              "properties": {
+                                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+                                "principalId": "[parameters('principalId')]",
+                                "principalType": "ServicePrincipal"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('prefix')))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "deployChaosNodeRgRbac",
+                      "resourceGroup": "[parameters('nodeResourceGroupName')]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "principalId": {
+                            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('prefix'))), '2023-01-31').principalId]"
+                          },
+                          "identityId": {
+                            "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('prefix')))]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.42.1.51946",
+                              "templateHash": "9540819233162262163"
+                            }
+                          },
+                          "parameters": {
+                            "principalId": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Principal ID of the Chaos Studio managed identity"
+                              }
+                            },
+                            "identityId": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Resource ID of the managed identity (used to make the role assignment name stable)"
+                              }
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Authorization/roleAssignments",
+                              "apiVersion": "2022-04-01",
+                              "name": "[guid(resourceGroup().id, parameters('identityId'), '9980e02c-c2be-4d73-94e8-173b1dc7cf3c')]",
+                              "properties": {
+                                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '9980e02c-c2be-4d73-94e8-173b1dc7cf3c')]",
+                                "principalId": "[parameters('principalId')]",
+                                "principalType": "ServicePrincipal"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('prefix')))]"
+                      ]
+                    },
+                    {
+                      "copy": {
+                        "name": "vmssCapability",
+                        "count": "[length(parameters('vmssNames'))]"
+                      },
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "[format('capabilityVmss-{0}', parameters('vmssNames')[copyIndex()])]",
+                      "resourceGroup": "[parameters('nodeResourceGroupName')]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "vmssName": {
+                            "value": "[parameters('vmssNames')[copyIndex()]]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.42.1.51946",
+                              "templateHash": "7480032550429563858"
+                            }
+                          },
+                          "parameters": {
+                            "vmssName": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Name of the VMSS backing the AKS node pool"
+                              }
+                            },
+                            "location": {
+                              "type": "string",
+                              "defaultValue": "[resourceGroup().location]",
+                              "metadata": {
+                                "description": "Azure region for the target resource"
+                              }
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Chaos/targets",
+                              "apiVersion": "2023-11-01",
+                              "scope": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
+                              "name": "Microsoft-VirtualMachineScaleSet",
+                              "location": "[parameters('location')]",
+                              "properties": {}
+                            },
+                            {
+                              "type": "Microsoft.Chaos/targets/capabilities",
+                              "apiVersion": "2023-11-01",
+                              "scope": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
+                              "name": "[format('{0}/{1}', 'Microsoft-VirtualMachineScaleSet', 'Shutdown-2.0')]",
+                              "dependsOn": [
+                                "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName')), 'Microsoft.Chaos/targets', 'Microsoft-VirtualMachineScaleSet')]"
+                              ]
+                            }
+                          ],
+                          "outputs": {
+                            "targetId": {
+                              "type": "string",
+                              "value": "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName')), 'Microsoft.Chaos/targets', 'Microsoft-VirtualMachineScaleSet')]"
+                            },
+                            "capabilityId": {
+                              "type": "string",
+                              "value": "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName')), 'Microsoft.Chaos/targets/capabilities', 'Microsoft-VirtualMachineScaleSet', 'Shutdown-2.0')]"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "deployChaosExperiment",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "experimentName": {
+                            "value": "[parameters('experimentName')]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "environment": {
+                            "value": "[parameters('environment')]"
+                          },
+                          "targetZone": {
+                            "value": "[parameters('targetZone')]"
+                          },
+                          "faultDurationMinutes": {
+                            "value": "[parameters('faultDurationMinutes')]"
+                          },
+                          "managedIdentityId": {
+                            "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('prefix')))]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.42.1.51946",
+                              "templateHash": "10562159316102264800"
+                            }
+                          },
+                          "parameters": {
+                            "experimentName": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Name of the Chaos Studio experiment"
+                              }
+                            },
+                            "location": {
+                              "type": "string",
+                              "defaultValue": "[resourceGroup().location]",
+                              "metadata": {
+                                "description": "Azure region"
+                              }
+                            },
+                            "environment": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Environment tag value used in the KQL target query (e.g. staging, prod). Matches the `environment` tag on AKS node pool VMSSes."
+                              }
+                            },
+                            "subscriptionId": {
+                              "type": "string",
+                              "defaultValue": "[subscription().subscriptionId]",
+                              "metadata": {
+                                "description": "Azure subscription ID scoped in the KQL selector query"
+                              }
+                            },
+                            "targetZone": {
+                              "type": "int",
+                              "defaultValue": 1,
+                              "allowedValues": [
+                                1,
+                                2,
+                                3
+                              ],
+                              "metadata": {
+                                "description": "Availability zone to fault (1, 2, or 3)"
+                              }
+                            },
+                            "faultDurationMinutes": {
+                              "type": "int",
+                              "defaultValue": 10,
+                              "minValue": 1,
+                              "maxValue": 60,
+                              "metadata": {
+                                "description": "Duration of the fault in minutes (default 10)"
+                              }
+                            },
+                            "managedIdentityId": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Resource ID of the user-assigned managed identity used by the experiment"
+                              }
+                            }
+                          },
+                          "variables": {
+                            "selectorId": "aks-node-pools"
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Chaos/experiments",
+                              "apiVersion": "2023-11-01",
+                              "name": "[parameters('experimentName')]",
+                              "location": "[parameters('location')]",
+                              "identity": {
+                                "type": "UserAssigned",
+                                "userAssignedIdentities": {
+                                  "[format('{0}', parameters('managedIdentityId'))]": {}
+                                }
+                              },
+                              "properties": {
+                                "selectors": [
+                                  {
+                                    "type": "Query",
+                                    "id": "[variables('selectorId')]",
+                                    "queryString": "[format('Resources | where type == ''microsoft.compute/virtualmachinescalesets'' | where tags[''chaos-target''] == ''true'' and tags[''environment''] == ''{0}''', parameters('environment'))]",
+                                    "subscriptionIds": [
+                                      "[parameters('subscriptionId')]"
+                                    ],
+                                    "filter": {
+                                      "type": "Simple",
+                                      "parameters": {
+                                        "zones": [
+                                          "[format('{0}', parameters('targetZone'))]"
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ],
+                                "steps": [
+                                  {
+                                    "name": "AKS Zonal Failure",
+                                    "branches": [
+                                      {
+                                        "name": "[format('Shutdown Zone {0}', parameters('targetZone'))]",
+                                        "actions": [
+                                          {
+                                            "type": "continuous",
+                                            "name": "urn:csci:microsoft:virtualMachineScaleSet:shutdown/2.0",
+                                            "duration": "[format('PT{0}M', parameters('faultDurationMinutes'))]",
+                                            "parameters": [
+                                              {
+                                                "key": "abruptShutdown",
+                                                "value": "false"
+                                              }
+                                            ],
+                                            "selectorId": "[variables('selectorId')]"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          ],
+                          "outputs": {
+                            "experimentId": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.Chaos/experiments', parameters('experimentName'))]"
+                            },
+                            "experimentName": {
+                              "type": "string",
+                              "value": "[parameters('experimentName')]"
+                            }
+                          }
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('prefix')))]",
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('nodeResourceGroupName')), 'Microsoft.Resources/deployments', 'deployChaosNodeRgRbac')]",
+                        "[subscriptionResourceId('Microsoft.Resources/deployments', 'deployChaosSubscriptionRbac')]",
+                        "vmssCapability"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "experimentId": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployChaosExperiment'), '2025-04-01').outputs.experimentId.value]"
+                    },
+                    "experimentName": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployChaosExperiment'), '2025-04-01').outputs.experimentName.value]"
+                    },
+                    "managedIdentityPrincipalId": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('prefix'))), '2023-01-31').principalId]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "condition": "[parameters('enableLoadTesting')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployLoadTesting",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "projectName": {
+                    "value": "[parameters('projectName')]"
+                  },
+                  "environment": {
+                    "value": "[parameters('environment')]"
+                  },
+                  "enableLoadTesting": {
+                    "value": "[parameters('enableLoadTesting')]"
+                  },
+                  "apiEndpointFqdn": {
+                    "value": "[parameters('apiEndpointFqdn')]"
+                  },
+                  "apiProtocol": {
+                    "value": "[parameters('apiProtocol')]"
+                  },
+                  "apiPort": {
+                    "value": "[parameters('apiPort')]"
+                  },
+                  "applicationInsightsConnectionString": {
+                    "value": "[parameters('applicationInsightsConnectionString')]"
+                  },
+                  "applicationInsightsInstrumentationKey": {
+                    "value": "[parameters('applicationInsightsInstrumentationKey')]"
+                  },
+                  "keyVaultId": {
+                    "value": "[parameters('keyVaultId')]"
+                  },
+                  "smokeTestEnabled": {
+                    "value": true
+                  },
+                  "smokeTestDurationSeconds": {
+                    "value": 120
+                  },
+                  "smokeTestThreads": {
+                    "value": 1
+                  },
+                  "smokeTestRampUpSeconds": {
+                    "value": 0
+                  },
+                  "loadTestEnabled": {
+                    "value": true
+                  },
+                  "loadTestDurationSeconds": {
+                    "value": 600
+                  },
+                  "loadTestThreads": {
+                    "value": 100
+                  },
+                  "loadTestRampUpSeconds": {
+                    "value": 120
+                  },
+                  "spikeTestEnabled": {
+                    "value": true
+                  },
+                  "spikeTestDurationSeconds": {
+                    "value": 300
+                  },
+                  "spikeTestThreads": {
+                    "value": 500
+                  },
+                  "spikeTestRampUpSeconds": {
+                    "value": 0
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "16988195866529131012"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "defaultValue": "[resourceGroup().location]"
+                    },
+                    "projectName": {
+                      "type": "string"
+                    },
+                    "environment": {
+                      "type": "string"
+                    },
+                    "enableLoadTesting": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "apiEndpointFqdn": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Public API endpoint FQDN for load testing (e.g., craftedspecially-pip.eastus.cloudapp.azure.com)"
+                      }
+                    },
+                    "apiProtocol": {
+                      "type": "string",
+                      "defaultValue": "https",
+                      "metadata": {
+                        "description": "API protocol (http or https)"
+                      }
+                    },
+                    "apiPort": {
+                      "type": "int",
+                      "defaultValue": 443,
+                      "metadata": {
+                        "description": "API port number"
+                      }
+                    },
+                    "applicationInsightsInstrumentationKey": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Application Insights instrumentation key"
+                      }
+                    },
+                    "applicationInsightsConnectionString": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Application Insights connection string"
+                      }
+                    },
+                    "keyVaultId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Key Vault resource ID for storing test credentials"
+                      }
+                    },
+                    "smokeTestEnabled": {
+                      "type": "bool",
+                      "defaultValue": true,
+                      "metadata": {
+                        "description": "Smoke test: single user, 2 minute duration"
+                      }
+                    },
+                    "smokeTestDurationSeconds": {
+                      "type": "int",
+                      "defaultValue": 120
+                    },
+                    "smokeTestThreads": {
+                      "type": "int",
+                      "defaultValue": 1
+                    },
+                    "smokeTestRampUpSeconds": {
+                      "type": "int",
+                      "defaultValue": 0
+                    },
+                    "loadTestEnabled": {
+                      "type": "bool",
+                      "defaultValue": true,
+                      "metadata": {
+                        "description": "Load test: 100 users ramped over 2 minutes, 10 minute sustain"
+                      }
+                    },
+                    "loadTestDurationSeconds": {
+                      "type": "int",
+                      "defaultValue": 600
+                    },
+                    "loadTestThreads": {
+                      "type": "int",
+                      "defaultValue": 100
+                    },
+                    "loadTestRampUpSeconds": {
+                      "type": "int",
+                      "defaultValue": 120
+                    },
+                    "spikeTestEnabled": {
+                      "type": "bool",
+                      "defaultValue": true,
+                      "metadata": {
+                        "description": "Spike test: 500 users instantaneous, 5 minute duration"
+                      }
+                    },
+                    "spikeTestDurationSeconds": {
+                      "type": "int",
+                      "defaultValue": 300
+                    },
+                    "spikeTestThreads": {
+                      "type": "int",
+                      "defaultValue": 500
+                    },
+                    "spikeTestRampUpSeconds": {
+                      "type": "int",
+                      "defaultValue": 0
+                    },
+                    "enablePrivateEndpoint": {
+                      "type": "bool",
+                      "defaultValue": false,
+                      "metadata": {
+                        "description": "Enable private endpoint for load testing (optional)"
+                      }
+                    },
+                    "privateEndpointSubnetId": {
+                      "type": "string",
+                      "defaultValue": "",
+                      "metadata": {
+                        "description": "Subnet ID for private endpoint (if enabled)"
+                      }
+                    }
+                  },
+                  "resources": [
+                    {
+                      "condition": "[parameters('enableLoadTesting')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "deployLoadTesting",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "projectName": {
+                            "value": "[parameters('projectName')]"
+                          },
+                          "environment": {
+                            "value": "[parameters('environment')]"
+                          },
+                          "apiEndpointFqdn": {
+                            "value": "[parameters('apiEndpointFqdn')]"
+                          },
+                          "apiProtocol": {
+                            "value": "[parameters('apiProtocol')]"
+                          },
+                          "apiPort": {
+                            "value": "[parameters('apiPort')]"
+                          },
+                          "applicationInsightsInstrumentationKey": {
+                            "value": "[parameters('applicationInsightsInstrumentationKey')]"
+                          },
+                          "applicationInsightsConnectionString": {
+                            "value": "[parameters('applicationInsightsConnectionString')]"
+                          },
+                          "keyVaultId": {
+                            "value": "[parameters('keyVaultId')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.42.1.51946",
+                              "templateHash": "12001566623097263397"
+                            }
+                          },
+                          "parameters": {
+                            "location": {
+                              "type": "string",
+                              "defaultValue": "[resourceGroup().location]"
+                            },
+                            "projectName": {
+                              "type": "string"
+                            },
+                            "environment": {
+                              "type": "string"
+                            },
+                            "applicationInsightsInstrumentationKey": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Application Insights instrumentation key for metrics collection"
+                              }
+                            },
+                            "applicationInsightsConnectionString": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Application Insights connection string for metrics collection"
+                              }
+                            },
+                            "keyVaultId": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Key Vault ID for storing test credentials"
+                              }
+                            },
+                            "apiEndpointFqdn": {
+                              "type": "string",
+                              "metadata": {
+                                "description": "Public API endpoint FQDN for load testing (e.g., craftedspecially-pip.eastus.cloudapp.azure.com)"
+                              }
+                            },
+                            "apiProtocol": {
+                              "type": "string",
+                              "defaultValue": "https",
+                              "metadata": {
+                                "description": "API protocol (http or https)"
+                              }
+                            },
+                            "apiPort": {
+                              "type": "int",
+                              "defaultValue": 443,
+                              "metadata": {
+                                "description": "API port number"
+                              }
+                            }
+                          },
+                          "variables": {
+                            "loadTestingName": "[format('{0}-loadtest-{1}', parameters('projectName'), parameters('environment'))]",
+                            "commonTags": {
+                              "environment": "[parameters('environment')]",
+                              "project": "[parameters('projectName')]",
+                              "createdBy": "bicep",
+                              "module": "continuous-validation-load-testing"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.LoadTestService/loadTests",
+                              "apiVersion": "2022-12-01-preview",
+                              "name": "[variables('loadTestingName')]",
+                              "location": "[parameters('location')]",
+                              "tags": "[variables('commonTags')]",
+                              "identity": {
+                                "type": "SystemAssigned"
+                              },
+                              "properties": {
+                                "description": "Load testing service for CraftedSpecially API"
+                              }
+                            }
+                          ],
+                          "outputs": {
+                            "loadTestingId": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.LoadTestService/loadTests', variables('loadTestingName'))]"
+                            },
+                            "loadTestingName": {
+                              "type": "string",
+                              "value": "[variables('loadTestingName')]"
+                            },
+                            "loadTestingEndpoint": {
+                              "type": "string",
+                              "value": "[reference(resourceId('Microsoft.LoadTestService/loadTests', variables('loadTestingName')), '2022-12-01-preview').dataPlaneURI]"
+                            },
+                            "systemAssignedIdentity": {
+                              "type": "string",
+                              "value": "[reference(resourceId('Microsoft.LoadTestService/loadTests', variables('loadTestingName')), '2022-12-01-preview', 'full').identity.principalId]"
+                            },
+                            "apiEndpoint": {
+                              "type": "string",
+                              "value": "[format('{0}://{1}:{2}', parameters('apiProtocol'), parameters('apiEndpointFqdn'), parameters('apiPort'))]"
+                            },
+                            "applicationInsightsInstrumentationKey": {
+                              "type": "string",
+                              "value": "[parameters('applicationInsightsInstrumentationKey')]"
+                            },
+                            "applicationInsightsConnectionString": {
+                              "type": "string",
+                              "value": "[parameters('applicationInsightsConnectionString')]"
+                            },
+                            "keyVaultId": {
+                              "type": "string",
+                              "value": "[parameters('keyVaultId')]"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "loadTestingId": {
+                      "type": "string",
+                      "value": "[if(parameters('enableLoadTesting'), reference(resourceId('Microsoft.Resources/deployments', 'deployLoadTesting'), '2025-04-01').outputs.loadTestingId.value, '')]"
+                    },
+                    "loadTestingName": {
+                      "type": "string",
+                      "value": "[if(parameters('enableLoadTesting'), reference(resourceId('Microsoft.Resources/deployments', 'deployLoadTesting'), '2025-04-01').outputs.loadTestingName.value, '')]"
+                    },
+                    "loadTestingEndpoint": {
+                      "type": "string",
+                      "value": "[if(parameters('enableLoadTesting'), reference(resourceId('Microsoft.Resources/deployments', 'deployLoadTesting'), '2025-04-01').outputs.loadTestingEndpoint.value, '')]"
+                    },
+                    "systemAssignedIdentity": {
+                      "type": "string",
+                      "value": "[if(parameters('enableLoadTesting'), reference(resourceId('Microsoft.Resources/deployments', 'deployLoadTesting'), '2025-04-01').outputs.systemAssignedIdentity.value, '')]"
+                    },
+                    "apiEndpoint": {
+                      "type": "string",
+                      "value": "[if(parameters('enableLoadTesting'), reference(resourceId('Microsoft.Resources/deployments', 'deployLoadTesting'), '2025-04-01').outputs.apiEndpoint.value, '')]"
+                    },
+                    "testProfiles": {
+                      "type": "object",
+                      "value": {
+                        "smokeTest": {
+                          "enabled": "[parameters('smokeTestEnabled')]",
+                          "threads": "[parameters('smokeTestThreads')]",
+                          "duration": "[parameters('smokeTestDurationSeconds')]",
+                          "rampUp": "[parameters('smokeTestRampUpSeconds')]"
+                        },
+                        "loadTest": {
+                          "enabled": "[parameters('loadTestEnabled')]",
+                          "threads": "[parameters('loadTestThreads')]",
+                          "duration": "[parameters('loadTestDurationSeconds')]",
+                          "rampUp": "[parameters('loadTestRampUpSeconds')]"
+                        },
+                        "spikeTest": {
+                          "enabled": "[parameters('spikeTestEnabled')]",
+                          "threads": "[parameters('spikeTestThreads')]",
+                          "duration": "[parameters('spikeTestDurationSeconds')]",
+                          "rampUp": "[parameters('spikeTestRampUpSeconds')]"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "loadTestingId": {
+              "type": "string",
+              "value": "[if(and(parameters('enableLoadTesting'), not(equals(reference(resourceId('Microsoft.Resources/deployments', 'deployLoadTesting'), '2025-04-01'), null()))), reference(resourceId('Microsoft.Resources/deployments', 'deployLoadTesting'), '2025-04-01').outputs.loadTestingId.value, '')]"
+            },
+            "loadTestingName": {
+              "type": "string",
+              "value": "[if(and(parameters('enableLoadTesting'), not(equals(reference(resourceId('Microsoft.Resources/deployments', 'deployLoadTesting'), '2025-04-01'), null()))), reference(resourceId('Microsoft.Resources/deployments', 'deployLoadTesting'), '2025-04-01').outputs.loadTestingName.value, '')]"
+            },
+            "testProfiles": {
+              "type": "object",
+              "value": "[if(and(parameters('enableLoadTesting'), not(equals(reference(resourceId('Microsoft.Resources/deployments', 'deployLoadTesting'), '2025-04-01'), null()))), reference(resourceId('Microsoft.Resources/deployments', 'deployLoadTesting'), '2025-04-01').outputs.testProfiles.value, createObject())]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('projectName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('projectName')), 'Microsoft.Resources/deployments', 'deployRuntimeInfrastructure')]"
+      ]
+    }
+  ]
+}

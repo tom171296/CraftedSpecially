@@ -38,24 +38,22 @@ module app_insights './observability/application_insights.bicep' = {
   }
 }
 
-module aks './hosting/AKS.bicep' = {
-  name: 'deployAKS'
-  scope: resourceGroup()
-  params: {
-    aksName: '${projectName}-aks'
-    location: projectLocation
-    environment: environment
-    logAnalyticsWorkspaceId: log_analytics_workspace.outputs.workspaceId
-    containerRegistryName: containerRegistryName
-  }
-}
-
+// module aks './hosting/AKS.bicep' = {
+//   name: 'deployAKS'
+//   scope: resourceGroup()
+//   params: {
+//     aksName: '${projectName}-aks'
+//     location: projectLocation
+//     environment: environment
+//     logAnalyticsWorkspaceId: log_analytics_workspace.outputs.workspaceId
+//     containerRegistryName: containerRegistryName
+//   }
+// }
 
 module health_model_module './observability/health_model.bicep' = {
   name: 'deployHealthModel'
   scope: resourceGroup()
   params: {
-    projectLocation: projectLocation
     projectName: projectName
   }
 }
@@ -63,3 +61,6 @@ module health_model_module './observability/health_model.bicep' = {
 output staticIpAddress string = public_ip.outputs.ipAddress
 output staticIpName string = public_ip.outputs.publicIpName
 output gatewayFqdn string = public_ip.outputs.fqdn
+output appInsightsConnectionString string = app_insights.outputs.connectionString
+output appInsightsInstrumentationKey string = app_insights.outputs.instrumentationKey
+output appInsightsId string = app_insights.outputs.appInsightsId

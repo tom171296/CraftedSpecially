@@ -1,0 +1,67 @@
+{
+  "name": "CraftedSpecially",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/copilot-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "dotnet.defaultSolution": "CraftedSpecially.sln",
+        "chat.useAgentSkills": true
+      },
+      "extensions": [
+        "alexkrechik.cucumberautocomplete",
+        "bencoleman.armview",
+        "donjayamanne.githistory",
+        "formulahendry.dotnet-test-explorer",
+        "github.codespaces",
+        "github.github-vscode-theme",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
+        "golang.go",
+        "hashicorp.terraform",
+        "humao.rest-client",
+        "ms-azure-devops.azure-pipelines",
+        "ms-azuretools.azure-dev",
+        "ms-azuretools.vscode-azure-github-copilot",
+        "ms-azuretools.vscode-azure-mcp-server",
+        "ms-azuretools.vscode-azureappservice",
+        "ms-azuretools.vscode-azurecontainerapps",
+        "ms-azuretools.vscode-azurefunctions",
+        "ms-azuretools.vscode-azureresourcegroups",
+        "ms-azuretools.vscode-azurestaticwebapps",
+        "ms-azuretools.vscode-azurestorage",
+        "ms-azuretools.vscode-azurevirtualmachines",
+        "ms-azuretools.vscode-bicep",
+        "ms-azuretools.vscode-containers",
+        "ms-azuretools.vscode-cosmosdb",
+        "ms-azuretools.vscode-docker",
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.vscode-dotnet-modernize",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "ms-vscode-remote.remote-containers",
+        "ms-vscode.azurecli",
+        "ms-vscode.vscode-node-azure-pack",
+        "ms-vsliveshare.vsliveshare",
+        "ms-windows-ai-studio.windows-ai-studio",
+        "redhat.vscode-yaml",
+        "rust-lang.rust-analyzer",
+        "teamsdevapp.vscode-ai-foundry",
+        "vscjava.vscode-gradle",
+        "vscjava.vscode-java-dependency",
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-maven"
+      ]
+    }
+  },
+  "postCreateCommand": "dotnet restore CraftedSpecially.sln",
+  "remoteUser": "vscode"
+}

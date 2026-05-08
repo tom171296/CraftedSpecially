@@ -56,6 +56,10 @@ TemporaryDependencyNodeTargetIdentifier=net10.0
 [sourceFiles]
 CatalogInstrumentation.cs
 GetAllBeers/GetAllBeers.cs
+obj/Debug/net10.0/
+ .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+ Catalog.Application.AssemblyInfo.cs
+ Catalog.Application.GlobalUsings.g.cs
 
 [metadataReferences]
 ../Catalog.Domain/obj/Debug/net10.0/ref/Catalog.Domain.dll
