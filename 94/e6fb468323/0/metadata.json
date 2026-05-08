@@ -1,0 +1,96 @@
+{
+  "cli_version": "0.6.0",
+  "checkpoint_id": "94e6fb468323",
+  "session_id": "541b7872-cec5-4351-bf0f-00bde20173a8",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T18:31:07.660529Z",
+  "branch": "main",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "infra/k8s/argocd/apps/envoy-gateway.yaml"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "29d1e111fbb8",
+  "token_usage": {
+    "input_tokens": 136,
+    "cache_creation_tokens": 45814,
+    "cache_read_tokens": 1535510,
+    "output_tokens": 21963,
+    "api_call_count": 42
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T18:31:07.648364Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 1,
+    "human_removed": 1,
+    "total_committed": 0,
+    "total_lines_changed": 2,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 34,
+      "user_lines_removed": 6,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 32,
+        "infra/CraftedSpecially.bicep": 1,
+        "infra/k8s/argocd/apps/envoy-gateway.yaml": 1
+      },
+      "user_removed_per_file": {
+        "infra/CraftedSpecially.bicep": 1,
+        "infra/k8s/argocd/apps/envoy-gateway.yaml": 1,
+        "src/modules/catalog/Catalog.Application/Catalog.Application.csproj.lscache": 4
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 32,
+      "user_lines_removed": 0,
+      "agent_lines_added": 2,
+      "agent_lines_removed": 6,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 32
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 32,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 32
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 32,
+      "user_lines_removed": 0,
+      "agent_lines_added": 3,
+      "agent_lines_removed": 3,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 32
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 32,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 32
+      }
+    }
+  ]
+}

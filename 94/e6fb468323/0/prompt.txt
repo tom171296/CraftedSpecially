@@ -1,0 +1,13 @@
+why do i get this error in the bootstrap file: error: error validating "/Users/tom/Documents/workspace/private/CraftedSpecially/infra/k8s/argocd/namespace.yaml": error validating data: failed to download openapi: Get "https://dns-prefix-b9bpbg5h.hcp.eastus.azmk8s.io:443/openapi/v2?timeout=32s": dial tcp: lookup dns-prefix-b9bpbg5h.hcp.eastus.azmk8s.io: no such host; if you choose to ignore these errors, turn validation off with --validate=false
+
+---
+
+help me identify why the argo UI is not available
+
+---
+
+the public ip address is not associated to the load balancer, help me fix that
+
+---
+
+the public ip is this: craftedspecially-pip.eastus.cloudapp.azure.com
