@@ -1,0 +1,1 @@
+help me find out why the envoy proxy and gateway  are not deployed via argo

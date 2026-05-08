@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.6.0",
+  "checkpoint_id": "94e6fb468323",
+  "session_id": "ca3c54f2-a71e-4cdf-a4fe-447ae5e95ae1",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T18:31:08.402441Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "infra/k8s/argocd/apps/envoy-gateway.yaml"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "a946d76aab3a",
+  "token_usage": {
+    "input_tokens": 8,
+    "cache_creation_tokens": 17394,
+    "cache_read_tokens": 123254,
+    "output_tokens": 4968,
+    "api_call_count": 6
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T18:31:08.372733Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 1,
+    "human_removed": 0,
+    "total_committed": 0,
+    "total_lines_changed": 1,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 32,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 32
+      }
+    }
+  ]
+}
