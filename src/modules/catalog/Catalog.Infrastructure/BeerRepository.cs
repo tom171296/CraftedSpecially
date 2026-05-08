@@ -59,5 +59,5 @@ public class BeerRepository : IBeerRepository
         }
     ];
 
-    public IReadOnlyList<Beer> GetAll() => Beers.AsReadOnly();
+    public IReadOnlyList<Beer> GetAll() => Random.Shared.Next(2) == 0 ? Array.Empty<Beer>() : Beers.AsReadOnly();
 }

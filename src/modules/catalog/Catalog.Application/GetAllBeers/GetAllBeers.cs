@@ -25,7 +25,11 @@ public class GetAllBeersHandler
         var beers = _repository.GetAll();
 
         activity?.SetTag("beers.count", beers.Count);
-        CatalogInstrumentation.BeersReturnedCount.Record(beers.Count);
+        
+        CatalogInstrumentation.BeersResultByAvailabilityCount.Add(
+            1,
+            new KeyValuePair<string, object?>("has_beers", beers.Count > 0)
+        );
 
         return beers;
     }

@@ -1,0 +1,965 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.42.1.51946",
+      "templateHash": "11810479091987104803"
+    }
+  },
+  "parameters": {
+    "projectLocation": {
+      "type": "string",
+      "defaultValue": "canadacentral"
+    },
+    "projectName": {
+      "type": "string",
+      "defaultValue": "CraftedSpecially"
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "staging"
+    },
+    "chaosNodeResourceGroup": {
+      "type": "string",
+      "defaultValue": "[format('MC_{0}_{1}-aks_{2}', parameters('projectName'), parameters('projectName'), parameters('projectLocation'))]",
+      "metadata": {
+        "description": "AKS node resource group name (MC_*). Run: az aks show -g CraftedSpecially -n CraftedSpecially-aks --query nodeResourceGroup -o tsv"
+      }
+    },
+    "chaosVmssNames": {
+      "type": "array",
+      "defaultValue": [
+        "aks-workloadpool-11748166-vmss"
+      ],
+      "metadata": {
+        "description": "VMSS names to enroll as Chaos Studio targets. Run: az vmss list -g <NODE_RG> --query \"[].name\" -o tsv"
+      }
+    },
+    "loadBalancerName": {
+      "type": "string",
+      "defaultValue": "kubernetes",
+      "metadata": {
+        "description": "AKS managed Azure Load Balancer name in the AKS node resource group"
+      }
+    },
+    "enableLoadTesting": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable Azure Load Testing"
+      }
+    },
+    "apiEndpointFqdn": {
+      "type": "string",
+      "defaultValue": "craftedspecially-pip.eastus.cloudapp.azure.com",
+      "metadata": {
+        "description": "Public API endpoint FQDN (e.g., craftedspecially-pip.eastus.cloudapp.azure.com)"
+      }
+    },
+    "apiProtocol": {
+      "type": "string",
+      "defaultValue": "https",
+      "metadata": {
+        "description": "API protocol (http or https)"
+      }
+    },
+    "apiPort": {
+      "type": "int",
+      "defaultValue": 443,
+      "metadata": {
+        "description": "API port number"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-01-01",
+      "name": "[parameters('projectName')]",
+      "location": "[parameters('projectLocation')]"
+    },
+    {
+      "type": "Microsoft.Management/serviceGroups",
+      "apiVersion": "2024-02-01-preview",
+      "scope": "/",
+      "name": "[format('{0}-servicegroup', parameters('projectName'))]",
+      "kind": "ServiceGroup",
+      "properties": {
+        "displayName": "[format('{0} Service Group', parameters('projectName'))]",
+        "parent": {
+          "resourceId": "[tenantResourceId('Microsoft.Management/serviceGroups', 'health_model_test_tomb')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deployManagementGovernance",
+      "resourceGroup": "[parameters('projectName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('projectLocation')]"
+          },
+          "projectName": {
+            "value": "[parameters('projectName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.42.1.51946",
+              "templateHash": "7234151196276139952"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "projectName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployContainerRegistry",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "registryName": {
+                    "value": "[format('{0}acr', parameters('projectName'))]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "8481646746326497896"
+                    }
+                  },
+                  "parameters": {
+                    "registryName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string",
+                      "defaultValue": "[resourceGroup().location]"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.ContainerRegistry/registries",
+                      "apiVersion": "2025-05-01-preview",
+                      "name": "[parameters('registryName')]",
+                      "location": "[parameters('location')]",
+                      "sku": {
+                        "name": "Standard"
+                      },
+                      "properties": {
+                        "adminUserEnabled": false,
+                        "anonymousPullEnabled": false
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "containerRegistryName": {
+                      "type": "string",
+                      "value": "[parameters('registryName')]"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "containerRegistryName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployContainerRegistry'), '2025-04-01').outputs.containerRegistryName.value]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('projectName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "deployRuntimeInfrastructure",
+      "resourceGroup": "[parameters('projectName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "projectLocation": {
+            "value": "[parameters('projectLocation')]"
+          },
+          "projectName": {
+            "value": "[parameters('projectName')]"
+          },
+          "environment": {
+            "value": "[parameters('environment')]"
+          },
+          "chaosNodeResourceGroup": {
+            "value": "[parameters('chaosNodeResourceGroup')]"
+          },
+          "loadBalancerName": {
+            "value": "[parameters('loadBalancerName')]"
+          },
+          "containerRegistryName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('projectName')), 'Microsoft.Resources/deployments', 'deployManagementGovernance'), '2025-04-01').outputs.containerRegistryName.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.42.1.51946",
+              "templateHash": "2666250080407847258"
+            }
+          },
+          "parameters": {
+            "projectLocation": {
+              "type": "string"
+            },
+            "projectName": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string"
+            },
+            "chaosNodeResourceGroup": {
+              "type": "string"
+            },
+            "loadBalancerName": {
+              "type": "string"
+            },
+            "containerRegistryName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployPublicIp",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('projectLocation')]"
+                  },
+                  "publicIpName": {
+                    "value": "[format('{0}-pip', parameters('projectName'))]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "10829902460640794041"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "defaultValue": "[resourceGroup().location]"
+                    },
+                    "publicIpName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/publicIPAddresses",
+                      "apiVersion": "2024-05-01",
+                      "name": "[parameters('publicIpName')]",
+                      "location": "[parameters('location')]",
+                      "sku": {
+                        "name": "Standard"
+                      },
+                      "properties": {
+                        "publicIPAllocationMethod": "Static",
+                        "dnsSettings": {
+                          "domainNameLabel": "[toLower(parameters('publicIpName'))]"
+                        }
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "ipAddress": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '2024-05-01').ipAddress]"
+                    },
+                    "resourceId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+                    },
+                    "publicIpName": {
+                      "type": "string",
+                      "value": "[parameters('publicIpName')]"
+                    },
+                    "fqdn": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '2024-05-01').dnsSettings.fqdn]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployAppConfig",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('projectLocation')]"
+                  },
+                  "appConfigName": {
+                    "value": "[format('{0}-appconfig', parameters('projectName'))]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "1598488369041338058"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "appConfigName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.AppConfiguration/configurationStores",
+                      "apiVersion": "2025-02-01-preview",
+                      "name": "[parameters('appConfigName')]",
+                      "location": "[parameters('location')]",
+                      "sku": {
+                        "name": "Standard"
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "appConfigEndpoint": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.AppConfiguration/configurationStores', parameters('appConfigName')), '2025-02-01-preview').endpoint]"
+                    },
+                    "appConfigId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.AppConfiguration/configurationStores', parameters('appConfigName'))]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployKeyVault",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('projectLocation')]"
+                  },
+                  "keyVaultName": {
+                    "value": "[toLower(format('kv{0}', uniqueString(subscription().id, resourceGroup().id, parameters('projectName'))))]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "9847549629236983272"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "keyVaultName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.KeyVault/vaults",
+                      "apiVersion": "2023-07-01",
+                      "name": "[parameters('keyVaultName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "tenantId": "[tenant().tenantId]",
+                        "sku": {
+                          "family": "A",
+                          "name": "standard"
+                        },
+                        "enableRbacAuthorization": true,
+                        "enableSoftDelete": true,
+                        "softDeleteRetentionInDays": 90,
+                        "enabledForTemplateDeployment": true
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "keyVaultId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployLogAnalyticsWorkspace",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "544657389280178256"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.OperationalInsights/workspaces",
+                      "apiVersion": "2025-02-01",
+                      "name": "[format('log-analytics-{0}', uniqueString(resourceGroup().id))]",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "sku": {
+                          "name": "PerGB2018"
+                        },
+                        "retentionInDays": 30
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "workspaceId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', format('log-analytics-{0}', uniqueString(resourceGroup().id)))]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployApplicationInsights",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "workspaceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployLogAnalyticsWorkspace'), '2025-04-01').outputs.workspaceId.value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "17137108347951444229"
+                    }
+                  },
+                  "parameters": {
+                    "workspaceId": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Insights/components",
+                      "apiVersion": "2020-02-02",
+                      "name": "[format('app-insights-{0}', uniqueString(resourceGroup().id))]",
+                      "location": "[resourceGroup().location]",
+                      "kind": "web",
+                      "properties": {
+                        "Application_Type": "web",
+                        "RetentionInDays": 30,
+                        "WorkspaceResourceId": "[parameters('workspaceId')]"
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "connectionString": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Insights/components', format('app-insights-{0}', uniqueString(resourceGroup().id))), '2020-02-02').ConnectionString]"
+                    },
+                    "instrumentationKey": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Insights/components', format('app-insights-{0}', uniqueString(resourceGroup().id))), '2020-02-02').InstrumentationKey]"
+                    },
+                    "appInsightsId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Insights/components', format('app-insights-{0}', uniqueString(resourceGroup().id)))]"
+                    },
+                    "appInsightsName": {
+                      "type": "string",
+                      "value": "[format('app-insights-{0}', uniqueString(resourceGroup().id))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployLogAnalyticsWorkspace')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployAKS",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "aksName": {
+                    "value": "[format('{0}-aks', parameters('projectName'))]"
+                  },
+                  "location": {
+                    "value": "[parameters('projectLocation')]"
+                  },
+                  "environment": {
+                    "value": "[parameters('environment')]"
+                  },
+                  "logAnalyticsWorkspaceId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployLogAnalyticsWorkspace'), '2025-04-01').outputs.workspaceId.value]"
+                  },
+                  "containerRegistryName": {
+                    "value": "[parameters('containerRegistryName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "13650899350759233017"
+                    }
+                  },
+                  "parameters": {
+                    "aksName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "environment": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceId": {
+                      "type": "string"
+                    },
+                    "containerRegistryName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.ContainerService/managedClusters",
+                      "apiVersion": "2025-07-02-preview",
+                      "name": "[parameters('aksName')]",
+                      "location": "[parameters('location')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
+                      "sku": {
+                        "name": "Base",
+                        "tier": "Standard"
+                      },
+                      "properties": {
+                        "dnsPrefix": "dns-prefix",
+                        "agentPoolProfiles": [
+                          {
+                            "name": "agentpool",
+                            "count": 3,
+                            "vmSize": "Standard_DS2_v2",
+                            "osType": "Linux",
+                            "mode": "System",
+                            "availabilityZones": [
+                              "1",
+                              "2",
+                              "3"
+                            ]
+                          },
+                          {
+                            "name": "workloadpool",
+                            "count": 2,
+                            "vmSize": "Standard_DS2_v2",
+                            "osType": "Linux",
+                            "mode": "User",
+                            "availabilityZones": [
+                              "1",
+                              "2",
+                              "3"
+                            ],
+                            "tags": {
+                              "chaos-target": "true",
+                              "environment": "[parameters('environment')]"
+                            }
+                          }
+                        ],
+                        "azureMonitorProfile": {
+                          "containerInsights": {
+                            "enabled": true,
+                            "logAnalyticsWorkspaceResourceId": "[parameters('logAnalyticsWorkspaceId')]"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+                      "name": "[guid(resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName')), resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), 'acrpull-role-assignment')]",
+                      "properties": {
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+                        "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName')), '2025-07-02-preview').identityProfile.kubeletidentity.objectId]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "name": "[guid(resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName')), resourceGroup().id, 'network-contributor-role-assignment')]",
+                      "properties": {
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
+                        "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName')), '2025-07-02-preview', 'full').identity.principalId]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "aksId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName'))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployLogAnalyticsWorkspace')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "deployHealthModel",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "projectName": {
+                    "value": "[parameters('projectName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.42.1.51946",
+                      "templateHash": "6714452411184660910"
+                    }
+                  },
+                  "parameters": {
+                    "projectName": {
+                      "type": "string"
+                    },
+                    "healthModelLocation": {
+                      "type": "string",
+                      "defaultValue": "canadacentral",
+                      "allowedValues": [
+                        "uksouth",
+                        "canadacentral",
+                        "centralus",
+                        "swedencentral",
+                        "southeastasia"
+                      ],
+                      "metadata": {
+                        "description": "Location for the health model. Microsoft.CloudHealth/healthmodels is only available in a subset of regions."
+                      }
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.CloudHealth/healthmodels",
+                      "apiVersion": "2026-01-01-preview",
+                      "name": "[format('{0}-healthmodel', parameters('projectName'))]",
+                      "location": "[parameters('healthModelLocation')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
+                      "properties": {}
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "staticIpAddress": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployPublicIp'), '2025-04-01').outputs.ipAddress.value]"
+            },
+            "staticIpName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployPublicIp'), '2025-04-01').outputs.publicIpName.value]"
+            },
+            "gatewayFqdn": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployPublicIp'), '2025-04-01').outputs.fqdn.value]"
+            },
+            "appInsightsConnectionString": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployApplicationInsights'), '2025-04-01').outputs.connectionString.value]"
+            },
+            "appInsightsInstrumentationKey": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployApplicationInsights'), '2025-04-01').outputs.instrumentationKey.value]"
+            },
+            "appInsightsId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployApplicationInsights'), '2025-04-01').outputs.appInsightsId.value]"
+            },
+            "aksId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployAKS'), '2025-04-01').outputs.aksId.value]"
+            },
+            "appConfigId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployAppConfig'), '2025-04-01').outputs.appConfigId.value]"
+            },
+            "keyVaultId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deployKeyVault'), '2025-04-01').outputs.keyVaultId.value]"
+            },
+            "loadBalancerId": {
+              "type": "string",
+              "value": "[resourceId(parameters('chaosNodeResourceGroup'), 'Microsoft.Network/loadBalancers', parameters('loadBalancerName'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('projectName')), 'Microsoft.Resources/deployments', 'deployManagementGovernance')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('projectName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "serviceGroupMembershipResourceGroup",
+      "resourceGroup": "[parameters('projectName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "aksName": {
+            "value": "[last(split(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('projectName')), 'Microsoft.Resources/deployments', 'deployRuntimeInfrastructure'), '2025-04-01').outputs.aksId.value, '/'))]"
+          },
+          "appConfigName": {
+            "value": "[last(split(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('projectName')), 'Microsoft.Resources/deployments', 'deployRuntimeInfrastructure'), '2025-04-01').outputs.appConfigId.value, '/'))]"
+          },
+          "keyVaultName": {
+            "value": "[last(split(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('projectName')), 'Microsoft.Resources/deployments', 'deployRuntimeInfrastructure'), '2025-04-01').outputs.keyVaultId.value, '/'))]"
+          },
+          "serviceGroupId": {
+            "value": "[tenantResourceId('Microsoft.Management/serviceGroups', format('{0}-servicegroup', parameters('projectName')))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.42.1.51946",
+              "templateHash": "10987358878282630620"
+            }
+          },
+          "parameters": {
+            "aksName": {
+              "type": "string"
+            },
+            "appConfigName": {
+              "type": "string"
+            },
+            "keyVaultName": {
+              "type": "string"
+            },
+            "serviceGroupId": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Relationships/serviceGroupMember",
+              "apiVersion": "2023-09-01-preview",
+              "scope": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('aksName'))]",
+              "name": "relaks",
+              "properties": {
+                "targetId": "[parameters('serviceGroupId')]"
+              }
+            },
+            {
+              "type": "Microsoft.Relationships/serviceGroupMember",
+              "apiVersion": "2023-09-01-preview",
+              "scope": "[resourceId('Microsoft.AppConfiguration/configurationStores', parameters('appConfigName'))]",
+              "name": "relappconfig",
+              "properties": {
+                "targetId": "[parameters('serviceGroupId')]"
+              }
+            },
+            {
+              "type": "Microsoft.Relationships/serviceGroupMember",
+              "apiVersion": "2023-09-01-preview",
+              "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+              "name": "relkeyvault",
+              "properties": {
+                "targetId": "[parameters('serviceGroupId')]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('projectName'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('projectName')), 'Microsoft.Resources/deployments', 'deployRuntimeInfrastructure')]",
+        "[tenantResourceId('Microsoft.Management/serviceGroups', format('{0}-servicegroup', parameters('projectName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "serviceGroupMembershipLoadBalancer",
+      "resourceGroup": "[parameters('chaosNodeResourceGroup')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "loadBalancerName": {
+            "value": "[parameters('loadBalancerName')]"
+          },
+          "serviceGroupId": {
+            "value": "[tenantResourceId('Microsoft.Management/serviceGroups', format('{0}-servicegroup', parameters('projectName')))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.42.1.51946",
+              "templateHash": "18273695669793726121"
+            }
+          },
+          "parameters": {
+            "loadBalancerName": {
+              "type": "string"
+            },
+            "serviceGroupId": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Relationships/serviceGroupMember",
+              "apiVersion": "2023-09-01-preview",
+              "scope": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'))]",
+              "name": "relloadbalancer",
+              "properties": {
+                "targetId": "[parameters('serviceGroupId')]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[tenantResourceId('Microsoft.Management/serviceGroups', format('{0}-servicegroup', parameters('projectName')))]"
+      ]
+    }
+  ]
+}

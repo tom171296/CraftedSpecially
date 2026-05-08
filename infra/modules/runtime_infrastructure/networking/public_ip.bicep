@@ -6,6 +6,9 @@ param publicIpName string
 resource publicIp 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
   name: publicIpName
   location: location
+  tags: {
+    'health-model-entity': 'true'
+  }
   sku: {
     name: 'Standard'
   }

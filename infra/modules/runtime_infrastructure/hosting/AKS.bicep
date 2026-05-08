@@ -7,14 +7,27 @@ param environment string
 param logAnalyticsWorkspaceId string
 param containerRegistryName string
 
+param serviceGroupId string
+
 resource existingACR 'Microsoft.ContainerRegistry/registries@2025-05-01-preview' existing = {
   name: containerRegistryName
   scope: resourceGroup()
 }
 
+resource service_group_member 'Microsoft.Relationships/serviceGroupMember@2023-09-01-preview' = {
+  scope: aks
+  name: guid(aks.id, 'serviceGroupMember')
+  properties: {
+    targetId: serviceGroupId
+  }
+}
+
 resource aks 'Microsoft.ContainerService/managedClusters@2025-07-02-preview' = {
   name: aksName
   location: location
+  tags: {
+    'health-model-entity': 'true'
+  }
   identity: {
     type: 'SystemAssigned'
   }

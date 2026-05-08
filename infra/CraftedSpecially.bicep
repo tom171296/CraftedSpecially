@@ -9,8 +9,20 @@ param chaosNodeResourceGroup string = 'MC_${projectName}_${projectName}-aks_${pr
 
 @description('VMSS names to enroll as Chaos Studio targets. Run: az vmss list -g <NODE_RG> --query "[].name" -o tsv')
 param chaosVmssNames array = [
-  'aks-workloadpool-94760578-vmss'
+  'aks-workloadpool-11748166-vmss'
 ]
+
+@description('Enable Azure Load Testing')
+param enableLoadTesting bool = true
+
+@description('Public API endpoint FQDN (e.g., craftedspecially-pip.eastus.cloudapp.azure.com)')
+param apiEndpointFqdn string = 'craftedspecially-pip.eastus.cloudapp.azure.com'
+
+@description('API protocol (http or https)')
+param apiProtocol string = 'https'
+
+@description('API port number')
+param apiPort int = 443
 
 // Creating resource group
 resource rg 'Microsoft.Resources/resourceGroups@2021-01-01' = {
@@ -42,6 +54,7 @@ module management_governance './modules/management_governance/management_governa
   params: {
     location: projectLocation
     projectName: projectName
+    serviceGroupId: service_group.id
   }
 }
 
@@ -53,19 +66,25 @@ module runtime_infrastructure './modules/runtime_infrastructure/runtime_infrastr
     projectName: projectName
     environment: environment
     containerRegistryName: management_governance.outputs.containerRegistryName
+    serviceGroupId: service_group.id
   }
 }
 
-module continuous_validation './modules/continuous_validation/continuous_validation.bicep' = {
-  name: 'deployContinuousValidation'
+// module continuous_validation './modules/continuous_validation/continuous_validation.bicep' = {
+//   name: 'deployContinuousValidation'
+//   scope: rg
+//   params: {
+//     location: projectLocation
+//     environment: environment
+//     chaosNodeResourceGroup: chaosNodeResourceGroup
+//     chaosVmssNames: chaosVmssNames
+//   }
+// }
+
+module health_model './modules/health_model/health_model.bicep' = {
+  name: 'deployHealthModel'
   scope: rg
   params: {
-    location: projectLocation
-    environment: environment
-    chaosNodeResourceGroup: chaosNodeResourceGroup
-    chaosVmssNames: chaosVmssNames
+
   }
-  dependsOn: [
-    runtime_infrastructure
-  ]
 }

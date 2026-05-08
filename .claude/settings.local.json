@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(dotnet build:*)",
+      "Bash(git log:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh run:*)",
+      "Bash(dotnet restore:*)",
+      "mcp__nuget_mcp__get-latest-package-version",
+      "mcp__nuget_mcp__get-package-context",
+      "mcp__microsoft_docs_mcp__microsoft_docs_search",
+      "mcp__microsoft_docs_mcp__microsoft_docs_fetch",
+      "Bash(grep *)",
+      "Bash(git ls-tree *)",
+      "Bash(chmod +x *)",
+      "Bash(openspec new *)",
+      "Bash(openspec status *)",
+      "Bash(openspec instructions *)",
+      "Bash(az deployment group show *)",
+      "Bash(kubectl get *)",
+      "Bash(kubectl describe *)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "microsoft.docs.mcp"
+  ]
+}

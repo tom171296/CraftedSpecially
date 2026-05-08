@@ -13,6 +13,6 @@ public static class CatalogInstrumentation
     public static readonly Counter<long> BeersRequestCount =
         Meter.CreateCounter<long>("catalog.beers.request_count", description: "Number of times the beer list is requested");
 
-    public static readonly Histogram<int> BeersReturnedCount =
-        Meter.CreateHistogram<int>("catalog.beers.returned_count", description: "Distribution of how many beers are returned per request");
+    public static readonly Counter<long> BeersResultByAvailabilityCount =
+        Meter.CreateCounter<long>("catalog.beers.result_by_availability_count", description: "Number of beer list requests, tagged by whether any beers were returned");
 }
