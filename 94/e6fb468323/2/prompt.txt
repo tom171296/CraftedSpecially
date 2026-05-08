@@ -1,0 +1,97 @@
+I pushed it to acr, what is next
+
+---
+
+I get this error: unexpected status from GET request to https://craftedspeciallyacr.azurecr.io/oauth2/token?scope=r │
+│ epository%3Acrafted-specially%3Apull&service=craftedspeciallyacr.azurecr.io: 401 Unauthorized]
+
+---
+
+the pod is not getting ready, why is that?
+
+---
+
+Context: CraftedSpecially-aks [RW]                <c>       Copy             ____  __ ________
+ Cluster: CraftedSpecially-aks                     <e>       Edit            |    |/  /   __   \______
+ User:    clusterUser_CraftedSpecially_CraftedSpec <n>       Next Match      |       /\____    /  ___/
+ K9s Rev: v0.50.18                                 <shift-n> Prev Match      |    \   \  /    /\___  \
+ K8s Rev: v1.34.6                                  <r>       Toggle Auto-Refr|____|\__ \/____//____  /
+ CPU:     15%                                      <x>       Toggle Decode            \/           \/
+ MEM:     37%
+┌──────────────── Describe(crafted-specially/crafted-specially-api-579865b85b-2g7n9) ─────────────────┐
+│ Status:           Running                                                                           │
+│ IP:               10.244.1.57                                                                       │
+│ IPs:                                                                                                │
+│   IP:           10.244.1.57                                                                         │
+│ Controlled By:  ReplicaSet/crafted-specially-api-579865b85b                                         │
+│ Containers:                                                                                         │
+│   crafted-specially-api:                                                                            │
+│     Container ID:   containerd://5a72be58a6a64596d08c0d49a6734643db08a3bf767315b71a1e8333670cacdc   │
+│     Image:          craftedspeciallyacr.azurecr.io/crafted-specially:latest                         │
+│     Image ID:       craftedspeciallyacr.azurecr.io/crafted-specially@sha256:c6e5de149ddb6ef35c5ec3a │
+│ e11561643cf9268381cb4abb4f884ac6e53ddde39                                                           │
+│     Port:           8080/TCP                                                                        │
+│     Host Port:      0/TCP                                                                           │
+│     State:          Running                                                                         │
+│       Started:      Mon, 04 May 2026 21:29:12 +0200                                                 │
+│     Last State:     Terminated                                                                      │
+│       Reason:       Completed                                                                       │
+│       Exit Code:    0                                                                               │
+│       Started:      Mon, 04 May 2026 21:27:38 +0200                                                 │
+│       Finished:     Mon, 04 May 2026 21:29:12 +0200                                                 │
+│     Ready:          False                                                                           │
+│     Restart Count:  1                                                                               │
+│     Limits:                                                                                         │
+│       cpu:     500m                                                                                 │
+│       memory:  512Mi                                                                                │
+│     Requests:                                                                                       │
+│       cpu:      100m                                                                                │
+│       memory:   128Mi                                                                               │
+│     Liveness:   http-get http://:8080/health delay=30s timeout=1s period=30s #success=1 #failure=3  │
+│     Readiness:  http-get http://:8080/health delay=10s timeout=1s period=10s #success=1 #failure=3  │
+│     Environment:                                                                                    │
+│       ASPNETCORE_ENVIRONMENT:  Production                                                           │
+│     Mounts:                                                                                         │
+│       /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-tt7c7 (ro)                 │
+│ Conditions:                                                                                         │
+│   Type                        Status                                                                │
+│   PodReadyToStartContainers   True                                                                  │
+│   Initialized                 True                                                                  │
+│   Ready                       False                                                                 │
+│   ContainersReady             False                                                                 │
+│   PodScheduled                True                                                                  │
+│ Volumes:                                                                                            │
+│   kube-api-access-tt7c7:                                                                            │
+│     Type:                    Projected (a volume that contains injected data from multiple sources) │
+│     TokenExpirationSeconds:  3607                                                                   │
+│     ConfigMapName:           kube-root-ca.crt                                                       │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+  <namespace>   <pod>   <describe>
+
+---
+
+check craftedspecially and fix stuff to get the app ready and healthy
+
+---
+
+make argo look at the main branch and map the endpoints correct
+
+---
+
+make the changes in this branch
+
+---
+
+i pulled the latest main, make argo look at this branch and fix the health endpoints
+
+---
+
+how can I apply the new stuff, my sh script is gone
+
+---
+
+I want to have an sh script that bootstraps the argo setup. one that deploys the root app
+
+---
+
+I get thsi error running the script: error: the path "/Users/tom/Documents/workspace/private/CraftedSpecially/infra/k8s/argocd/namespace.yaml" does not exist

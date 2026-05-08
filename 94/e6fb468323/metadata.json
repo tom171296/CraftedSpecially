@@ -3,7 +3,7 @@
   "checkpoint_id": "94e6fb468323",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 6,
+  "checkpoints_count": 10,
   "files_touched": [
     "infra/k8s/argocd/apps/envoy-gateway.yaml"
   ],
@@ -19,13 +19,19 @@
       "transcript": "/94/e6fb468323/1/full.jsonl",
       "content_hash": "/94/e6fb468323/1/content_hash.txt",
       "prompt": "/94/e6fb468323/1/prompt.txt"
+    },
+    {
+      "metadata": "/94/e6fb468323/2/metadata.json",
+      "transcript": "/94/e6fb468323/2/full.jsonl",
+      "content_hash": "/94/e6fb468323/2/content_hash.txt",
+      "prompt": "/94/e6fb468323/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 157,
-    "cache_creation_tokens": 78655,
-    "cache_read_tokens": 2079222,
-    "output_tokens": 38981,
-    "api_call_count": 59
+    "input_tokens": 318,
+    "cache_creation_tokens": 194956,
+    "cache_read_tokens": 11119610,
+    "output_tokens": 95619,
+    "api_call_count": 179
   }
 }

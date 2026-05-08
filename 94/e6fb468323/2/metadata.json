@@ -1,0 +1,79 @@
+{
+  "cli_version": "0.6.0",
+  "checkpoint_id": "94e6fb468323",
+  "session_id": "b8564148-5bca-4727-b0e9-c6edc931dad7",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T18:31:08.269081Z",
+  "branch": "main",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "infra/k8s/argocd/apps/envoy-gateway.yaml"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "b928f6368161",
+  "token_usage": {
+    "input_tokens": 161,
+    "cache_creation_tokens": 116301,
+    "cache_read_tokens": 9040388,
+    "output_tokens": 56638,
+    "api_call_count": 120
+  },
+  "session_metrics": {
+    "turn_count": 9
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T18:31:08.221572Z",
+    "agent_lines": 38,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 1,
+    "human_removed": 0,
+    "total_committed": 39,
+    "total_lines_changed": 39,
+    "agent_percentage": 97.43589743589743,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 23,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 23
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 24,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 24
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 25,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 25
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 26,
+      "user_lines_removed": 0,
+      "agent_lines_added": 45,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 26
+      }
+    }
+  ]
+}
