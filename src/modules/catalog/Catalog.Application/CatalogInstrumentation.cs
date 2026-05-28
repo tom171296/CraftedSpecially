@@ -14,5 +14,9 @@ public static class CatalogInstrumentation
         Meter.CreateCounter<long>("catalog.beers.request_count", description: "Number of times the beer list is requested");
 
     public static readonly Counter<long> BeersResultByAvailabilityCount =
-        Meter.CreateCounter<long>("catalog.beers.result_by_availability_count", description: "Number of beer list requests, tagged by whether any beers were returned");
+        Meter.CreateCounter<long>(
+            name: "catalog.beers.result_by_availability_count", 
+            description: "Number of beer list requests, tagged by whether any beers were returned"
+        );
 }
+

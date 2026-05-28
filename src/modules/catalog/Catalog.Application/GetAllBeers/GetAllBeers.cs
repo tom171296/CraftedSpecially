@@ -31,6 +31,6 @@ public class GetAllBeersHandler
             new KeyValuePair<string, object?>("has_beers", beers.Count > 0)
         );
 
-        return beers;
+        return beers; 
     }
 }

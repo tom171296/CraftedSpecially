@@ -85,6 +85,8 @@ module health_model './modules/health_model/health_model.bicep' = {
   name: 'deployHealthModel'
   scope: rg
   params: {
-
+    projectName: projectName
+    healthModelLocation: 'swedencentral'
+    logAnalyticsWorkspaceId: runtime_infrastructure.outputs.logAnalyticsWorkspaceId
   }
 }

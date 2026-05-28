@@ -1,0 +1,90 @@
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 75
+    spike_limit_percentage: 20
+
+  batch:
+    send_batch_size: 8192
+    timeout: 500ms
+
+  # Adaptive tail sampling processor
+  tail_sampling:
+    decision_wait: 10s
+    num_traces: 10000
+    expected_new_traces_per_sec: 2000
+    policies:
+      # Policy 1: Always sample traces containing errors or exceptions
+      - name: error-conditions
+        type: status_code
+        status_code:
+          status_codes: [ ERROR ]
+
+      # Policy 2: Sample traces exceeding latency threshold (slow requests > 500ms)
+      - name: slow-requests
+        type: latency
+        latency:
+          threshold_ms: 500
+
+      # Policy 3: Drop health check traces (/health and /alive)
+      - name: drop-health-checks
+        type: string_attribute
+        string_attribute:
+          key: http.target
+          values: [ "/health", "/alive" ]
+          enabled_regex_matching: false
+          invert_match: true
+
+      # Policy 4: Probabilistic baseline sampling for standard healthy traffic (10%)
+      - name: sample-normal-traffic
+        type: probabilistic
+        probabilistic:
+          sampling_percentage: 10
+
+exporters:
+  # Aspire Dashboard OTLP Exporter
+  otlp/aspire:
+    endpoint: ${env:DOTNET_DASHBOARD_OTLP_ENDPOINT_URL:-http://host.docker.internal:18889}
+    tls:
+      insecure: true
+
+  # Azure Application Insights Exporter
+  azuremonitor:
+    connection_string: "${env:APPLICATIONINSIGHTS_CONNECTION_STRING}"
+
+  # Standard Output / Console Exporter for local debugging
+  debug:
+    verbosity: normal
+
+service:
+  extensions: [health_check, zpages]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, tail_sampling, batch]
+      exporters: [otlp/aspire, azuremonitor, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/aspire, azuremonitor, debug]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/aspire, azuremonitor, debug]
+  telemetry:
+    logs:
+      level: info

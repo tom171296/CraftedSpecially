@@ -57,18 +57,10 @@ module aks './hosting/AKS.bicep' = {
   }
 }
 
-module health_model_module './observability/health_model.bicep' = {
-  name: 'deployHealthModel'
-  scope: resourceGroup()
-  params: {
-    projectName: projectName
-    law_id: log_analytics_workspace.outputs.workspaceId
-  }
-}
-
 output staticIpAddress string = public_ip.outputs.ipAddress
 output staticIpName string = public_ip.outputs.publicIpName
 output gatewayFqdn string = public_ip.outputs.fqdn
 output appInsightsConnectionString string = app_insights.outputs.connectionString
 output appInsightsInstrumentationKey string = app_insights.outputs.instrumentationKey
 output appInsightsId string = app_insights.outputs.appInsightsId
+output logAnalyticsWorkspaceId string = log_analytics_workspace.outputs.workspaceId
