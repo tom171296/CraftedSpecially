@@ -1,0 +1,65 @@
+name: Sign & Attest
+description: Generates build provenance and SBOM attestation for a container image.
+
+inputs:
+  digest:
+    description: The image digest to attest.
+    required: true
+  registry:
+    description: The ACR registry host (e.g., myacr.azurecr.io).
+    required: true
+  image_name:
+    description: The image name.
+    required: true
+  azure-client-id:
+    description: Azure AD application client ID for OIDC.
+    required: true
+  azure-tenant-id:
+    description: Azure AD tenant ID for OIDC.
+    required: true
+  azure-subscription-id:
+    description: Azure subscription ID.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v4
+      with:
+        name: crafted-specially-build-output
+        path: buildOutput
+
+    - name: Log in to Azure
+      uses: azure/login@v2
+      with:
+        client-id: ${{ inputs.azure-client-id }}
+        tenant-id: ${{ inputs.azure-tenant-id }}
+        subscription-id: ${{ inputs.azure-subscription-id }}
+
+    - name: Log in to ACR
+      shell: bash
+      run: |
+        az acr login --name "$(echo "${{ inputs.registry }}" | cut -d'.' -f1)"
+
+    - name: Generate build provenance
+      id: generate_provenance
+      uses: actions/attest-build-provenance@96278af6caaf10aea03fd8d33a09a777ca52d62f # v3.2.0
+      with:
+        subject-name: ${{ inputs.registry }}/${{ inputs.image_name }}
+        subject-digest: ${{ inputs.digest }}
+        push-to-registry: true
+
+    - name: Generate SBOM attestation
+      uses: actions/attest-sbom@4651f806c01d8637787e274ac3bdf724ef169f34 # v2
+      with:
+        subject-name: ${{ inputs.registry }}/${{ inputs.image_name }}
+        subject-digest: ${{ inputs.digest }}
+        push-to-registry: true
+        sbom-path: ./buildOutput/_manifest/spdx_2.2/manifest.spdx.json
+
+    - name: Upload attestation artifacts
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
+      with:
+        name: crafted-specially-provenance
+        path: ${{ steps.generate_provenance.outputs.bundle-path }}
